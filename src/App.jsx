@@ -158,12 +158,13 @@ function PartnerOnboard({ go }) {
 
 function Home({ go, businesses, events, vendors, reviews }) {
   const [tab, setTab] = useState("foryou");
-  const tabs = [{ id: "foryou", l: "For you" }, { id: "biz", l: "Businesses" }, { id: "vendors", l: "Vendors" }, { id: "new", l: "New here?" }];
+  const tabs = [{ id: "foryou", l: "For you" }, { id: "biz", l: "Businesses" }, { id: "selling", l: "Selling?" }, { id: "vendors", l: "Vendors" }, { id: "new", l: "New here?" }];
   return (<div style={{ background: B.off, minHeight: "100%" }}>
     <div style={{ background: B.black, padding: "14px 14px 12px", borderRadius: "0 0 22px 22px" }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}><BH light /><CallBtn /></div><div style={{ display: "flex", gap: 5, overflowX: "auto", scrollbarWidth: "none" }}>{tabs.map(t => (<button key={t.id} onClick={() => setTab(t.id)} style={{ padding: "6px 13px", borderRadius: 18, border: "none", fontSize: 11, fontWeight: tab === t.id ? 700 : 400, background: tab === t.id ? B.gold : "rgba(255,255,255,0.07)", color: tab === t.id ? B.black : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>{t.l}</button>))}</div></div>
     <div style={{ padding: "12px 14px 90px" }}>
       {tab === "foryou" && <FYTab go={go} businesses={businesses} events={events} />}
       {tab === "biz" && <BizTab businesses={businesses} />}
+      {tab === "selling" && <SellerTab />}
       {tab === "vendors" && <VendorTab vendors={vendors} />}
       {tab === "new" && <NewTab go={go} reviews={reviews} />}
     </div>
@@ -179,6 +180,7 @@ function FYTab({ go, businesses, events }) {
     <SH label="Upcoming" />
     {events.slice(0, 4).map((e, i) => (<div key={i} style={{ display: "flex", gap: 10, background: B.white, borderRadius: 12, padding: 11, border: `1px solid ${B.brd}`, alignItems: "center" }}><div style={{ width: 40, height: 40, borderRadius: 10, background: `${catC[e.category] || B.gold}10`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><div style={{ fontSize: 9, fontWeight: 700, color: catC[e.category] || B.gold }}>{e.date_display?.split(" ")[0]}</div><div style={{ fontSize: 7, color: B.dim }}>{e.date_display?.split(" ")[1]}</div></div><div style={{ flex: 1, minWidth: 0 }}><div style={{ fontSize: 12, fontWeight: 700, color: B.charcoal, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div><div style={{ fontSize: 10, color: B.dim }}>{e.area}</div></div>{e.is_free && <Bdg color={B.success}>FREE</Bdg>}</div>))}
     <button onClick={() => go("calc")} style={{ width: "100%", padding: "13px", background: `linear-gradient(135deg, ${B.medBlue}12, ${B.gold}10)`, border: `1px solid ${B.medBlue}20`, borderRadius: 14, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "space-between" }}><div style={{ textAlign: "left" }}><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>Cost of living calculator</div><div style={{ fontSize: 11, color: B.medBlue }}>Compare your city to Fresno →</div></div><span style={{ fontSize: 24 }}>💰</span></button>
+    <button onClick={() => go("buyer")} style={{ width: "100%", padding: "13px", background: `linear-gradient(135deg, ${B.success}12, ${B.gold}10)`, border: `1px solid ${B.success}20`, borderRadius: 14, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "space-between" }}><div style={{ textAlign: "left" }}><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>Ready to buy a home?</div><div style={{ fontSize: 11, color: B.success }}>Tell Chris what you're looking for →</div></div><span style={{ fontSize: 24 }}>🔑</span></button>
     <button onClick={() => go("quiz")} style={{ width: "100%", padding: "13px", background: `linear-gradient(135deg, ${B.charcoal}, ${B.black})`, border: "none", borderRadius: 14, cursor: "pointer", fontFamily: "inherit", display: "flex", alignItems: "center", justifyContent: "space-between" }}><div style={{ textAlign: "left" }}><div style={{ fontSize: 13, fontWeight: 700, color: B.white }}>Moving to the area?</div><div style={{ fontSize: 11, color: B.gold }}>Neighborhood match quiz →</div></div><span style={{ fontSize: 24 }}>🏠</span></button>
     <div style={{ background: B.white, borderRadius: 14, padding: 14, border: `1px solid ${B.brd}`, display: "flex", alignItems: "center", gap: 12 }}><Logo size={40} /><div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: B.charcoal }}>Chris Patterson</div><a href="https://instagram.com/Chrispattersonre" target="_blank" rel="noopener" style={{ fontSize: 10, color: B.purple, textDecoration: "none", fontWeight: 600 }}>{IG}</a></div><CallBtn /></div>
   </div>);
@@ -206,6 +208,50 @@ function VendorTab({ vendors }) {
   </div>);
 }
 
+function SellerTab() {
+  return (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+    <div style={{ background: `linear-gradient(145deg, ${B.black}, #1a1c2e)`, borderRadius: 18, padding: 22, color: B.white }}>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>THINKING OF SELLING?</div>
+      <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Get top dollar for your home</div>
+      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: 14 }}>Chris Patterson and the Trafton Home Team combine professional marketing, social media exposure, and deep local knowledge to sell your home faster and for more.</div>
+      <div style={{ display: "flex", gap: 8 }}><CallBtn full style={{ flex: 1, justifyContent: "center" }} /><TextBtn style={{ flex: 1, justifyContent: "center" }} /></div>
+    </div>
+    <SH label="Your home's marketing plan" />
+    {[
+      { em: "📸", t: "Professional photography & videography", d: "High-quality photos and cinematic video tours that make your home stand out" },
+      { em: "📱", t: "Social media blitz", d: "Featured across Instagram, TikTok, YouTube Shorts, and Facebook — reaching thousands of local buyers" },
+      { em: "📊", t: "Strategic pricing analysis", d: "Comprehensive market analysis to price your home competitively and attract strong offers" },
+      { em: "🎨", t: "Staging consultation", d: "Expert guidance on presenting your home to maximize buyer appeal" },
+      { em: "🤝", t: "Full-service from list to close", d: "Negotiation, inspections, appraisals, escrow coordination — handled for you" },
+      { em: "📋", t: "Transaction coordination", d: "Dedicated TC managing every document and deadline so nothing falls through the cracks" },
+    ].map((s, i) => (<div key={i} style={{ background: B.white, borderRadius: 12, padding: 14, border: `1px solid ${B.brd}` }}>
+      <div style={{ display: "flex", gap: 10, alignItems: "start" }}>
+        <span style={{ fontSize: 22, flexShrink: 0 }}>{s.em}</span>
+        <div><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>{s.t}</div><div style={{ fontSize: 11, color: B.slate, marginTop: 2, lineHeight: 1.5 }}>{s.d}</div></div>
+      </div>
+    </div>))}
+    <SH label="Fresno/Clovis market snapshot" />
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+      {[{ v: "$400K", l: "Median sale price" }, { v: "59 days", l: "Avg days on market" }, { v: "98.7%", l: "Sale-to-list ratio" }, { v: "2.6%", l: "YoY appreciation" }].map((s, i) => (
+        <div key={i} style={{ background: B.white, borderRadius: 12, padding: 14, border: `1px solid ${B.brd}`, textAlign: "center" }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: B.charcoal }}>{s.v}</div>
+          <div style={{ fontSize: 10, color: B.dim, marginTop: 2 }}>{s.l}</div>
+        </div>
+      ))}
+    </div>
+    <div style={{ background: `linear-gradient(135deg, ${B.gold}15, ${B.gold}08)`, borderRadius: 14, padding: 16, border: `1px solid ${B.gold}25`, textAlign: "center" }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: B.charcoal, marginBottom: 4 }}>Sold our home in just 38 days!</div>
+      <div style={{ fontSize: 12, color: B.slate, lineHeight: 1.6, fontStyle: "italic" }}>"Their marketing strategy was exceptional — from the stunning videography to the professional photography that generated so much interest."</div>
+      <div style={{ fontSize: 11, color: B.gold, fontWeight: 600, marginTop: 6 }}>— Angela B., Google Review</div>
+    </div>
+    <div style={{ background: B.white, borderRadius: 14, padding: 14, border: `1px solid ${B.brd}` }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}><Logo size={40} /><div><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>Chris Patterson</div><a href="https://instagram.com/Chrispattersonre" target="_blank" rel="noopener" style={{ fontSize: 10, color: B.purple, textDecoration: "none", fontWeight: 600 }}>{IG}</a></div></div>
+      <div style={{ fontSize: 12, color: B.slate, lineHeight: 1.6, marginBottom: 10 }}>Ready to find out what your home is worth? Let's talk — no pressure, just real numbers and honest advice.</div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}><CallBtn full style={{ flex: 1, justifyContent: "center" }} /><TextBtn style={{ flex: 1, justifyContent: "center" }} /><EmailBtn style={{ flex: "1 1 100%", justifyContent: "center" }} /></div>
+    </div>
+  </div>);
+}
+
 function NewTab({ go, reviews }) {
   return (<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
     <div style={{ background: `linear-gradient(145deg, ${B.black}, #1a1c2e)`, borderRadius: 18, padding: 20, color: B.white }}><div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>WELCOME</div><div style={{ fontFamily: "var(--hf)", fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Moving to Fresno or Clovis?</div><div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: 12 }}>Find your neighborhood, connect with vendors, feel at home before you move.</div><div style={{ display: "flex", gap: 8 }}><button onClick={() => go("quiz")} style={{ padding: "10px 18px", background: B.gold, border: "none", borderRadius: 10, fontSize: 12, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Find my hood →</button><button onClick={() => go("calc")} style={{ padding: "10px 18px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, fontSize: 12, fontWeight: 600, color: B.white, cursor: "pointer", fontFamily: "inherit" }}>Cost calculator</button></div></div>
@@ -220,7 +266,7 @@ function EventsScreen({ events }) {
   const [f, setF] = useState("All");
   const cats = ["All", ...new Set(events.map(e => e.category).filter(Boolean))];
   const list = f === "All" ? events : events.filter(e => e.category === f);
-  return (<div style={{ background: B.off, minHeight: "100%", paddingBottom: 90 }}><div style={{ padding: "16px 14px 10px" }}><div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.charcoal }}>Events</div><div style={{ fontSize: 11, color: B.dim, marginTop: 2 }}>Fresno & Clovis · {events.length} upcoming</div><div style={{ display: "flex", gap: 5, overflowX: "auto", marginTop: 10, scrollbarWidth: "none" }}>{cats.map(c => (<button key={c} onClick={() => setF(c)} style={{ padding: "6px 12px", borderRadius: 18, border: `1px solid ${f === c ? B.gold : B.brd}`, fontSize: 10, fontWeight: f === c ? 700 : 400, background: f === c ? `${B.gold}15` : B.white, color: f === c ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>{c}</button>))}</div></div><div style={{ padding: "0 14px" }}>{list.map((e, i) => (<div key={i} style={{ background: B.white, borderRadius: 14, padding: 14, marginBottom: 8, border: `1px solid ${B.brd}`, position: "relative", overflow: "hidden" }}>{e.is_hot && <div style={{ position: "absolute", top: 0, right: 0, padding: "3px 10px 3px 14px", background: B.danger, borderRadius: "0 0 0 10px", fontSize: 7, fontWeight: 700, color: B.white, letterSpacing: 1 }}>TRENDING</div>}<div style={{ display: "flex", gap: 12 }}><div style={{ width: 46, height: 46, borderRadius: 12, background: `${catC[e.category] || B.gold}10`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><div style={{ fontSize: 12, fontWeight: 700, color: catC[e.category] || B.gold }}>{e.date_display?.split(" ")[0]}</div><div style={{ fontSize: 8, color: B.dim }}>{e.date_display?.split(" ")[1]}</div></div><div style={{ flex: 1 }}><div style={{ fontSize: 14, fontWeight: 700, color: B.charcoal }}>{e.name}</div><div style={{ fontSize: 10, color: B.dim, marginTop: 1 }}>{e.area}</div><div style={{ fontSize: 11, color: B.slate, lineHeight: 1.5, marginTop: 4 }}>{e.description}</div><div style={{ display: "flex", gap: 5, marginTop: 6 }}><Bdg color={catC[e.category] || B.gold}>{e.category}</Bdg>{e.is_free && <Bdg color={B.success}>FREE</Bdg>}</div></div></div></div>))}{list.length === 0 && <div style={{ textAlign: "center", padding: 30, color: B.dim }}>No events in this category.</div>}</div></div>);
+  return (<div style={{ background: B.off, minHeight: "100%", paddingBottom: 90 }}><div style={{ padding: "16px 14px 10px" }}><div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.charcoal }}>Events</div><div style={{ fontSize: 11, color: B.dim, marginTop: 2 }}>Fresno & Clovis · {events.length} upcoming</div><div style={{ display: "flex", gap: 5, overflowX: "auto", marginTop: 10, scrollbarWidth: "none" }}>{cats.map(c => (<button key={c} onClick={() => setF(c)} style={{ padding: "6px 12px", borderRadius: 18, border: `1px solid ${f === c ? B.gold : B.brd}`, fontSize: 10, fontWeight: f === c ? 700 : 400, background: f === c ? `${B.gold}15` : B.white, color: f === c ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>{c}</button>))}</div></div><div style={{ padding: "0 14px" }}>{list.map((e, i) => (<div key={i} style={{ background: B.white, borderRadius: 14, padding: 14, marginBottom: 8, border: `1px solid ${B.brd}`, position: "relative", overflow: "hidden" }}>{e.is_hot && <div style={{ position: "absolute", top: 0, right: 0, padding: "3px 10px 3px 14px", background: B.danger, borderRadius: "0 0 0 10px", fontSize: 7, fontWeight: 700, color: B.white, letterSpacing: 1 }}>TRENDING</div>}<div style={{ display: "flex", gap: 12 }}><div style={{ width: 46, height: 46, borderRadius: 12, background: `${catC[e.category] || B.gold}10`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><div style={{ fontSize: 12, fontWeight: 700, color: catC[e.category] || B.gold }}>{e.date_display?.split(" ")[0]}</div><div style={{ fontSize: 8, color: B.dim }}>{e.date_display?.split(" ")[1]}</div></div><div style={{ flex: 1 }}><div style={{ fontSize: 14, fontWeight: 700, color: B.charcoal }}>{e.name}</div><div style={{ fontSize: 10, color: B.dim, marginTop: 1 }}>{e.area}</div><div style={{ fontSize: 11, color: B.slate, lineHeight: 1.5, marginTop: 4 }}>{e.description}</div><div style={{ display: "flex", gap: 5, marginTop: 6 }}><Bdg color={catC[e.category] || B.gold}>{e.category}</Bdg>{e.is_free && <Bdg color={B.success}>FREE</Bdg>}{e.link && <a href={e.link} target="_blank" rel="noopener" style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 6, background: `${B.medBlue}14`, color: B.medBlue, textDecoration: "none" }}>More info →</a>}</div></div></div></div>))}{list.length === 0 && <div style={{ textAlign: "center", padding: 30, color: B.dim }}>No events in this category.</div>}</div></div>);
 }
 
 function ExploreScreen({ businesses, vendors }) {
@@ -249,6 +295,148 @@ function Quiz({ go }) {
   if (done) return (<div style={{ background: B.off, minHeight: "100%", paddingBottom: 90 }}><div style={{ background: `linear-gradient(160deg, ${B.black}, #151725)`, padding: "18px 14px 22px", borderRadius: "0 0 22px 22px" }}><div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 4 }}>YOUR RESULTS</div><div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white }}>Neighborhood matches</div></div><div style={{ padding: "12px 14px" }}>{HOODS.map((n, i) => (<div key={i} style={{ background: B.white, borderRadius: 16, padding: 14, marginBottom: 10, border: `1px solid ${B.brd}` }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 6 }}><div style={{ display: "flex", alignItems: "center", gap: 8 }}><span style={{ fontSize: 24 }}>{n.img}</span><div><div style={{ fontSize: 14, fontWeight: 700, color: B.charcoal }}>{n.name}</div><div style={{ fontSize: 11, color: B.gold }}>{n.vibe}</div></div></div><div style={{ textAlign: "right" }}><div style={{ fontSize: 18, fontWeight: 700, color: n.match >= 90 ? B.success : n.match >= 80 ? B.medBlue : B.slate }}>{n.match}%</div><div style={{ fontSize: 7, fontWeight: 700, color: B.dim }}>MATCH</div></div></div><div style={{ fontSize: 11, color: B.slate, lineHeight: 1.5, marginBottom: 8 }}>{n.desc}</div><div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}><Bdg color={B.medBlue}>Schools: {n.schools}</Bdg><Bdg color={B.slate}>{n.commute} commute</Bdg><Bdg color={B.gold}>Median: {n.median}</Bdg></div>{n.highlights && <div style={{ padding: "7px 10px", background: `${B.gold}08`, borderRadius: 8, marginBottom: 8 }}>{n.highlights.map((h, j) => <div key={j} style={{ fontSize: 10, color: B.slate, lineHeight: 1.6 }}>· {h}</div>)}</div>}{i === 0 && <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}><CallBtn full style={{ flex: 1, justifyContent: "center" }} /><TextBtn style={{ flex: 1, justifyContent: "center" }} /><IgBtn style={{ flex: "1 1 48%", justifyContent: "center" }} /><EmailBtn style={{ flex: "1 1 48%", justifyContent: "center" }} /></div>}</div>))}<button onClick={() => { setDone(false); setStep(0); setAnswers([]); setOthers({}); }} style={{ width: "100%", padding: "11px", background: "transparent", border: `1px solid ${B.brd}`, borderRadius: 12, fontSize: 12, fontWeight: 600, color: B.slate, cursor: "pointer", fontFamily: "inherit", marginBottom: 6 }}>Retake quiz</button><button onClick={() => go("home")} style={{ width: "100%", padding: "11px", background: B.charcoal, border: "none", borderRadius: 12, fontSize: 12, fontWeight: 600, color: B.white, cursor: "pointer", fontFamily: "inherit" }}>← Home</button></div></div>);
   const qd = QUIZ[step];
   return (<div style={{ background: `linear-gradient(170deg, ${B.black}, #151725, ${B.charcoal})`, minHeight: "100%", display: "flex", flexDirection: "column", padding: "22px 16px 34px" }}><div style={{ display: "flex", gap: 3, marginBottom: 24 }}>{QUIZ.map((_, i) => <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i <= step ? B.gold : "rgba(255,255,255,0.1)" }} />)}</div><div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>Question {step + 1} of {QUIZ.length}</div><div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 600, color: B.white, lineHeight: 1.3, marginBottom: 24 }}>{qd.q}</div><div style={{ display: "flex", flexDirection: "column", gap: 8 }}>{qd.opts.map((opt, i) => (<button key={i} onClick={() => pick(i)} style={{ width: "100%", padding: "14px 16px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, fontSize: 13, color: B.white, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>{opt}</button>))}<div style={{ position: "relative" }}><input value={others[step] || ""} onChange={e => setOthers(o => ({ ...o, [step]: e.target.value }))} placeholder="Other — type your answer..." style={{ width: "100%", padding: "14px 80px 14px 16px", background: "rgba(255,255,255,0.05)", border: `1px solid ${others[step] ? B.gold : "rgba(255,255,255,0.1)"}`, borderRadius: 12, fontSize: 13, color: B.white, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }} />{others[step] && <button onClick={() => pick(-1)} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", padding: "6px 14px", background: B.gold, border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, color: B.black, cursor: "pointer" }}>Submit</button>}</div></div>{step > 0 && <button onClick={() => { setStep(s => s - 1); setAnswers(a => a.slice(0, -1)); }} style={{ marginTop: 14, background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>← Back</button>}</div>);
+}
+
+const ZONES = [
+  { id: "nw", name: "NW Fresno", zip: "93711", x: 15, y: 20, w: 28, h: 25, color: "#7CA6E9" },
+  { id: "wp", name: "Woodward Park", zip: "93720", x: 43, y: 10, w: 28, h: 22, color: "#5CAA6E" },
+  { id: "fig", name: "Fig Garden", zip: "93704", x: 15, y: 45, w: 25, h: 22, color: "#9B6ED4" },
+  { id: "tower", name: "Tower District", zip: "93728", x: 15, y: 67, w: 25, h: 22, color: "#E8593C" },
+  { id: "dt", name: "Downtown", zip: "93721", x: 40, y: 67, w: 22, h: 22, color: "#E8A040" },
+  { id: "otc", name: "Old Town Clovis", zip: "93612", x: 62, y: 32, w: 25, h: 22, color: "#CEB08E" },
+  { id: "lv", name: "Loma Vista", zip: "93619", x: 72, y: 10, w: 22, h: 22, color: "#9BC8DC" },
+  { id: "ce", name: "Clovis East", zip: "93619", x: 62, y: 54, w: 25, h: 22, color: "#8B6F47" },
+  { id: "se", name: "SE Fresno", zip: "93725", x: 40, y: 45, w: 22, h: 22, color: "#D4736E" },
+  { id: "mad", name: "Madera County", zip: "93637", x: 15, y: 0, w: 80, h: 12, color: "#888780" },
+];
+
+function BuyerQuiz({ go }) {
+  const [step, setStep] = useState(0);
+  const [form, setForm] = useState({ first_name: "", last_name: "", phone: "", email: "", timeline: "", budget_min: 200, budget_max: 500, property_type: "", bedrooms: "", zones: [], must_haves: [], pre_approved: "", notes: "" });
+  const [sent, setSent] = useState(false); const [sending, setSending] = useState(false);
+  const up = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const toggleZone = (id) => setForm(f => ({ ...f, zones: f.zones.includes(id) ? f.zones.filter(z => z !== id) : [...f.zones, id] }));
+  const toggleMH = (item) => setForm(f => ({ ...f, must_haves: f.must_haves.includes(item) ? f.must_haves.filter(m => m !== item) : [...f.must_haves, item] }));
+
+  const submit = async () => {
+    setSending(true);
+    const data = { ...form, budget_min: form.budget_min * 1000, budget_max: form.budget_max * 1000, zones: form.zones };
+    await dbInsert("buyer_inquiries", data);
+    const zoneNames = form.zones.map(z => ZONES.find(zn => zn.id === z)?.name).join(", ");
+    await sendEmail("🏠 New Homebuyer Inquiry on The Spot", `New buyer inquiry!\n\nName: ${form.first_name} ${form.last_name}\nPhone: ${form.phone}\nEmail: ${form.email}\n\nTimeline: ${form.timeline}\nBudget: $${form.budget_min}K - $${form.budget_max}K\nProperty type: ${form.property_type}\nBedrooms: ${form.bedrooms}\nPre-approved: ${form.pre_approved}\n\nPreferred areas: ${zoneNames || "None selected"}\nMust-haves: ${form.must_haves.join(", ") || "None"}\nNotes: ${form.notes || "None"}\n\nView in admin: thespotfresno.com?admin=1`);
+    setSent(true); setSending(false);
+  };
+
+  if (sent) return (<div style={{ height: "100%", background: `linear-gradient(168deg, ${B.black}, #151725)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center" }}>
+    <div style={{ fontSize: 48, marginBottom: 16 }}>🏠</div>
+    <div style={{ fontFamily: "var(--hf)", fontSize: 22, fontWeight: 700, color: B.white, marginBottom: 8 }}>You're on the list!</div>
+    <div style={{ fontSize: 13, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: 20 }}>Chris will reach out within 24 hours to start your home search. Get ready to find your perfect home in Fresno/Clovis.</div>
+    <CallBtn full style={{ marginBottom: 12 }} />
+    <button onClick={() => go("home")} style={{ padding: "12px 28px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, fontSize: 14, fontWeight: 500, color: B.white, cursor: "pointer", fontFamily: "inherit" }}>Back to The Spot →</button>
+  </div>);
+
+  const steps = [
+    () => (<div>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 1 OF 5</div>
+      <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white, marginBottom: 4 }}>Let's find your home</div>
+      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>First, tell us about yourself</div>
+      {[["First name", "first_name", "Chris"], ["Last name", "last_name", "Patterson"], ["Phone", "phone", "(559) 555-5555"], ["Email", "email", "you@email.com"]].map(([l, k, ph]) => (
+        <div key={k} style={{ marginBottom: 12 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.gold, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>{l}</label><input value={form[k]} onChange={e => up(k, e.target.value)} placeholder={ph} style={{ width: "100%", padding: "12px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, fontSize: 14, color: B.white, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }} /></div>
+      ))}
+    </div>),
+
+    () => (<div>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 2 OF 5</div>
+      <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white, marginBottom: 4 }}>Where do you want to live?</div>
+      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>Tap the areas you're interested in — select as many as you'd like</div>
+      <div style={{ position: "relative", width: "100%", paddingBottom: "75%", background: "rgba(255,255,255,0.03)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", marginBottom: 12 }}>
+        <div style={{ position: "absolute", top: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: "rgba(255,255,255,0.3)", fontWeight: 600, letterSpacing: 2, textTransform: "uppercase" }}>NORTH ↑</div>
+        <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: "rgba(255,255,255,0.3)", fontWeight: 600, letterSpacing: 2 }}>↓ SOUTH</div>
+        <div style={{ position: "absolute", left: 4, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 8, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>FRESNO</div>
+        <div style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%) rotate(90deg)", fontSize: 8, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>CLOVIS</div>
+        {ZONES.map(z => {
+          const sel = form.zones.includes(z.id);
+          return (<button key={z.id} onClick={() => toggleZone(z.id)} style={{ position: "absolute", left: `${z.x}%`, top: `${z.y}%`, width: `${z.w}%`, height: `${z.h}%`, background: sel ? `${z.color}40` : "rgba(255,255,255,0.04)", border: `2px solid ${sel ? z.color : "rgba(255,255,255,0.1)"}`, borderRadius: 10, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transition: "all 0.15s", padding: 2 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: sel ? z.color : "rgba(255,255,255,0.5)" }}>{z.name}</div>
+            <div style={{ fontSize: 8, color: sel ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.3)" }}>{z.zip}</div>
+          </button>);
+        })}
+      </div>
+      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{form.zones.length === 0 ? "No areas selected yet" : `${form.zones.length} area${form.zones.length > 1 ? "s" : ""} selected`}</div>
+    </div>),
+
+    () => (<div>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 3 OF 5</div>
+      <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white, marginBottom: 4 }}>Budget & timeline</div>
+      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>What's your price range and when do you want to move?</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.gold, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>Budget range</label>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 6 }}>
+        <div style={{ fontSize: 20, fontWeight: 700, color: B.white, minWidth: 60 }}>${form.budget_min}K</div>
+        <div style={{ flex: 1, fontSize: 14, color: "rgba(255,255,255,0.4)", textAlign: "center" }}>to</div>
+        <div style={{ fontSize: 20, fontWeight: 700, color: B.gold, minWidth: 60, textAlign: "right" }}>${form.budget_max}K</div>
+      </div>
+      <div style={{ marginBottom: 6 }}><label style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>Min: ${form.budget_min}K</label><input type="range" min="100" max="800" step="25" value={form.budget_min} onChange={e => up("budget_min", Math.min(parseInt(e.target.value), form.budget_max - 25))} style={{ width: "100%", accentColor: B.gold }} /></div>
+      <div style={{ marginBottom: 20 }}><label style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>Max: ${form.budget_max}K</label><input type="range" min="150" max="1000" step="25" value={form.budget_max} onChange={e => up("budget_max", Math.max(parseInt(e.target.value), form.budget_min + 25))} style={{ width: "100%", accentColor: B.gold }} /></div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.gold, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>Timeline</label>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{["ASAP", "1-3 months", "3-6 months", "6-12 months", "Just exploring"].map(t => (
+        <button key={t} onClick={() => up("timeline", t)} style={{ padding: "10px 16px", borderRadius: 10, border: `1px solid ${form.timeline === t ? B.gold : "rgba(255,255,255,0.1)"}`, background: form.timeline === t ? `${B.gold}25` : "rgba(255,255,255,0.05)", fontSize: 12, fontWeight: form.timeline === t ? 700 : 400, color: form.timeline === t ? B.gold : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+    </div>),
+
+    () => (<div>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 4 OF 5</div>
+      <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white, marginBottom: 4 }}>What are you looking for?</div>
+      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>Property details and must-haves</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.gold, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>Property type</label>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>{["Single family", "Condo/Townhome", "Multi-family", "Land/Lot", "New construction"].map(t => (
+        <button key={t} onClick={() => up("property_type", t)} style={{ padding: "10px 16px", borderRadius: 10, border: `1px solid ${form.property_type === t ? B.gold : "rgba(255,255,255,0.1)"}`, background: form.property_type === t ? `${B.gold}25` : "rgba(255,255,255,0.05)", fontSize: 12, fontWeight: form.property_type === t ? 700 : 400, color: form.property_type === t ? B.gold : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.gold, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>Bedrooms</label>
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>{["1+", "2+", "3+", "4+", "5+"].map(t => (
+        <button key={t} onClick={() => up("bedrooms", t)} style={{ flex: 1, padding: "12px", borderRadius: 10, border: `1px solid ${form.bedrooms === t ? B.gold : "rgba(255,255,255,0.1)"}`, background: form.bedrooms === t ? `${B.gold}25` : "rgba(255,255,255,0.05)", fontSize: 14, fontWeight: form.bedrooms === t ? 700 : 400, color: form.bedrooms === t ? B.gold : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.gold, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>Must-haves (select all that apply)</label>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>{["Pool", "Large yard", "Garage (2+)", "Single story", "Updated kitchen", "Open floor plan", "Good schools", "Near parks", "Quiet street", "RV parking", "ADU potential", "Move-in ready"].map(t => (
+        <button key={t} onClick={() => toggleMH(t)} style={{ padding: "8px 14px", borderRadius: 10, border: `1px solid ${form.must_haves.includes(t) ? B.gold : "rgba(255,255,255,0.1)"}`, background: form.must_haves.includes(t) ? `${B.gold}25` : "rgba(255,255,255,0.05)", fontSize: 11, fontWeight: form.must_haves.includes(t) ? 700 : 400, color: form.must_haves.includes(t) ? B.gold : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+    </div>),
+
+    () => (<div>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 5 OF 5</div>
+      <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white, marginBottom: 4 }}>Almost done!</div>
+      <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 20 }}>A couple more details and we'll get your home search started</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.gold, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>Are you pre-approved for a mortgage?</label>
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>{["Yes", "No", "In progress", "Paying cash"].map(t => (
+        <button key={t} onClick={() => up("pre_approved", t)} style={{ flex: 1, padding: "10px 8px", borderRadius: 10, border: `1px solid ${form.pre_approved === t ? B.gold : "rgba(255,255,255,0.1)"}`, background: form.pre_approved === t ? `${B.gold}25` : "rgba(255,255,255,0.05)", fontSize: 11, fontWeight: form.pre_approved === t ? 700 : 400, color: form.pre_approved === t ? B.gold : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.gold, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>Anything else Chris should know?</label>
+      <textarea value={form.notes} onChange={e => up("notes", e.target.value)} placeholder="Special requests, dealbreakers, questions..." rows={4} style={{ width: "100%", padding: "12px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, fontSize: 13, color: B.white, fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none", marginBottom: 10 }} />
+      <div style={{ background: "rgba(255,255,255,0.04)", borderRadius: 12, padding: 14, marginBottom: 10 }}>
+        <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase", marginBottom: 8 }}>Your search summary</div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.8 }}>
+          Budget: ${form.budget_min}K – ${form.budget_max}K<br/>
+          Timeline: {form.timeline || "—"}<br/>
+          Type: {form.property_type || "—"} · {form.bedrooms || "—"} beds<br/>
+          Areas: {form.zones.map(z => ZONES.find(zn => zn.id === z)?.name).join(", ") || "Any"}<br/>
+          Must-haves: {form.must_haves.join(", ") || "None"}<br/>
+          Pre-approved: {form.pre_approved || "—"}
+        </div>
+      </div>
+    </div>),
+  ];
+
+  return (
+    <div style={{ background: `linear-gradient(170deg, ${B.black}, #151725, ${B.charcoal})`, minHeight: "100%", display: "flex", flexDirection: "column", padding: "22px 16px 34px" }}>
+      <div style={{ display: "flex", gap: 3, marginBottom: 24 }}>{steps.map((_, i) => <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i <= step ? B.gold : "rgba(255,255,255,0.1)" }} />)}</div>
+      {steps[step]()}
+      <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+        {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ flex: 1, padding: "14px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12, fontSize: 14, fontWeight: 600, color: B.white, cursor: "pointer", fontFamily: "inherit" }}>← Back</button>}
+        {step < steps.length - 1 && <button onClick={() => setStep(s => s + 1)} style={{ flex: 2, padding: "14px", background: B.gold, border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Next →</button>}
+        {step === steps.length - 1 && <button onClick={submit} disabled={sending} style={{ flex: 2, padding: "14px", background: sending ? B.slate : B.gold, border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>{sending ? "Submitting..." : "Submit — let's find my home"}</button>}
+      </div>
+      {step === 0 && <button onClick={() => go("home")} style={{ marginTop: 12, background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>← Back to app</button>}
+    </div>
+  );
 }
 
 function CostCalc({ go }) {
@@ -492,7 +680,7 @@ export default function App() {
   }, []);
 
   const go = useCallback((id) => { if (["home", "explore", "events", "quiz", "connect"].includes(id)) setNav(id); setScr(id); }, []);
-  const showNav = !["splash", "referral", "partner", "admin"].includes(scr);
+  const showNav = !["splash", "referral", "partner", "admin", "buyer"].includes(scr);
 
   return (
     <div style={{ minHeight: "100vh", maxWidth: 480, margin: "0 auto", fontFamily: "'DM Sans', sans-serif", "--hf": "'Playfair Display', serif", background: B.off, display: "flex", flexDirection: "column" }}>
@@ -507,6 +695,7 @@ export default function App() {
           {scr === "explore" && <ExploreScreen businesses={businesses} vendors={vendors} />}
           {scr === "events" && <EventsScreen events={events} />}
           {scr === "quiz" && <Quiz go={go} />}
+          {scr === "buyer" && <BuyerQuiz go={go} />}
           {scr === "connect" && <Connect go={go} reviews={reviews} />}
           {scr === "calc" && <CostCalc go={go} />}
         </div>
