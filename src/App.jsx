@@ -91,6 +91,7 @@ function Splash({ go }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <button onClick={() => go("quiz")} style={{ width: "100%", padding: "15px", background: B.gold, border: "none", borderRadius: 14, fontSize: 15, fontWeight: 600, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>I'm relocating — find my neighborhood</button>
       <button onClick={() => go("home")} style={{ width: "100%", padding: "15px", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.14)", borderRadius: 14, fontSize: 15, fontWeight: 600, color: B.white, cursor: "pointer", fontFamily: "inherit" }}>I'm local — show me the spots</button>
+      <button onClick={() => go("sell")} style={{ width: "100%", padding: "15px", background: "rgba(255,255,255,0.07)", border: `1px solid ${B.gold}40`, borderRadius: 14, fontSize: 14, fontWeight: 600, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>I'm selling my home</button>
       <button onClick={() => go("referral")} style={{ width: "100%", padding: "15px", background: "transparent", border: `1px solid ${B.gold}50`, borderRadius: 14, fontSize: 14, fontWeight: 600, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>I'm an agent — send a referral</button>
       <button onClick={() => go("partner")} style={{ width: "100%", padding: "14px", background: "transparent", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, fontSize: 13, fontWeight: 500, color: "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit" }}>I'm a local business — become a Spot partner</button>
       <div style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 4, lineHeight: 1.8 }}><a href="https://instagram.com/Chrispattersonre" target="_blank" rel="noopener" style={{ color: B.purple, textDecoration: "none", fontWeight: 600 }}>{IG}</a> · <a href="tel:5593171529" style={{ color: B.gold, textDecoration: "none", fontWeight: 600 }}>{PHONE}</a> · <a href={`mailto:${EMAIL}`} style={{ color: B.gold, textDecoration: "none", fontWeight: 600 }}>{EMAIL}</a></div>
@@ -156,11 +157,11 @@ function PartnerOnboard({ go }) {
   </div>);
 }
 
-function Home({ go, businesses, events, vendors, reviews }) {
-  const [tab, setTab] = useState("foryou");
+function Home({ go, businesses, events, vendors, reviews, defaultTab = "foryou" }) {
+  const [tab, setTab] = useState(defaultTab);
   const tabs = [{ id: "foryou", l: "For you" }, { id: "biz", l: "Businesses" }, { id: "selling", l: "Selling?" }, { id: "vendors", l: "Vendors" }, { id: "new", l: "New here?" }];
   return (<div style={{ background: B.off, minHeight: "100%" }}>
-    <div style={{ background: B.black, padding: "14px 14px 12px", borderRadius: "0 0 22px 22px" }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}><BH light /><CallBtn /></div><div style={{ display: "flex", gap: 5, overflowX: "auto", scrollbarWidth: "none" }}>{tabs.map(t => (<button key={t.id} onClick={() => setTab(t.id)} style={{ padding: "6px 13px", borderRadius: 18, border: "none", fontSize: 11, fontWeight: tab === t.id ? 700 : 400, background: tab === t.id ? B.gold : "rgba(255,255,255,0.07)", color: tab === t.id ? B.black : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>{t.l}</button>))}</div></div>
+    <div style={{ background: B.black, padding: "14px 14px 12px", borderRadius: "0 0 22px 22px" }}><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}><BH light /><CallBtn /></div><div style={{ display: "flex", gap: 5, overflowX: "auto", scrollbarWidth: "none" }}>{tabs.map(t => (<button key={t.id} data-tab={t.id} onClick={() => setTab(t.id)} style={{ padding: "6px 13px", borderRadius: 18, border: "none", fontSize: 11, fontWeight: tab === t.id ? 700 : 400, background: tab === t.id ? B.gold : "rgba(255,255,255,0.07)", color: tab === t.id ? B.black : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>{t.l}</button>))}</div></div>
     <div style={{ padding: "12px 14px 90px" }}>
       {tab === "foryou" && <FYTab go={go} businesses={businesses} events={events} />}
       {tab === "biz" && <BizTab businesses={businesses} />}
@@ -679,7 +680,7 @@ export default function App() {
     })();
   }, []);
 
-  const go = useCallback((id) => { if (["home", "explore", "events", "quiz", "connect"].includes(id)) setNav(id); setScr(id); }, []);
+  const go = useCallback((id) => { if (["home", "explore", "events", "quiz", "connect", "sell"].includes(id)) setNav(id === "sell" ? "home" : id); setScr(id); }, []);
   const showNav = !["splash", "referral", "partner", "admin", "buyer"].includes(scr);
 
   return (
@@ -691,7 +692,8 @@ export default function App() {
           {scr === "splash" && <Splash go={go} />}
           {scr === "referral" && <ReferralPortal go={go} />}
           {scr === "partner" && <PartnerOnboard go={go} />}
-          {scr === "home" && <Home go={go} businesses={businesses} events={events} vendors={vendors} reviews={reviews} />}
+          {scr === "home" && <Home go={go} businesses={businesses} events={events} vendors={vendors} reviews={reviews} defaultTab="foryou" />}
+          {scr === "sell" && <Home go={go} businesses={businesses} events={events} vendors={vendors} reviews={reviews} defaultTab="selling" />}
           {scr === "explore" && <ExploreScreen businesses={businesses} vendors={vendors} />}
           {scr === "events" && <EventsScreen events={events} />}
           {scr === "quiz" && <Quiz go={go} />}
