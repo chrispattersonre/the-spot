@@ -379,20 +379,22 @@ function Quiz({ go }) {
 }
 
 const ZONES = [
-  { id: "93720", name: "Woodward Park", zip: "93720", color: "#5CAA6E", path: "M220,8 L300,8 L340,18 L340,70 L320,80 L275,82 L230,75 L220,60 Z", lx: 278, ly: 42 },
-  { id: "93711", name: "NW Fresno", zip: "93711", color: "#E87CA0", path: "M85,20 L220,8 L220,60 L230,75 L230,120 L210,135 L155,140 L110,135 L85,110 L75,70 Z", lx: 155, ly: 75 },
-  { id: "93710", name: "Bullard", zip: "93710", color: "#7CA6E9", path: "M230,75 L275,82 L320,80 L325,95 L325,145 L280,148 L230,145 L230,120 Z", lx: 278, ly: 112 },
-  { id: "93612", name: "Old Town Clovis", zip: "93612", color: "#CEB08E", path: "M325,45 L400,30 L430,40 L435,95 L435,150 L395,158 L325,145 L325,95 L340,70 L340,18 Z", lx: 380, ly: 95 },
-  { id: "93619", name: "Clovis East", zip: "93619", color: "#9BC8DC", path: "M400,8 L490,8 L490,170 L480,190 L435,170 L435,150 L435,95 L430,40 L400,30 Z", lx: 462, ly: 85 },
-  { id: "93611", name: "North Clovis", zip: "93611", color: "#A8D5BA", path: "M300,8 L400,8 L400,30 L340,18 Z", lx: 350, ly: 18 },
-  { id: "93704", name: "Fig Garden", zip: "93704", color: "#9B6ED4", path: "M110,135 L155,140 L210,135 L230,145 L230,195 L200,200 L145,200 L110,195 Z", lx: 170, ly: 168 },
-  { id: "93703", name: "Central Fresno", zip: "93703", color: "#5CAA6E", path: "M230,145 L280,148 L325,145 L395,158 L390,200 L340,210 L280,205 L230,195 Z", lx: 305, ly: 178 },
-  { id: "93722", name: "West Fresno", zip: "93722", path: "M15,55 L75,70 L85,110 L110,135 L110,195 L80,205 L40,195 L15,160 Z", color: "#D4956A", lx: 60, ly: 135 },
-  { id: "93728", name: "Tower District", zip: "93728", path: "M80,205 L110,195 L145,200 L200,200 L200,260 L160,275 L110,270 L80,245 Z", color: "#E8593C", lx: 142, ly: 238 },
-  { id: "93721", name: "Downtown", zip: "93721", path: "M200,200 L230,195 L280,205 L285,245 L260,265 L220,270 L200,260 Z", color: "#E8A040", lx: 240, ly: 232 },
-  { id: "93702", name: "South Fresno", zip: "93702", path: "M110,270 L160,275 L200,260 L220,270 L260,265 L270,290 L260,340 L200,360 L140,350 L100,320 L80,290 L80,245 Z", color: "#D4736E", lx: 175, ly: 310 },
-  { id: "93727", name: "SE Fresno", zip: "93727", path: "M280,205 L340,210 L390,200 L435,170 L480,190 L480,340 L420,370 L350,370 L300,350 L270,290 L260,265 L285,245 Z", color: "#8B6F47", lx: 385, ly: 280 },
-  { id: "93706", name: "SW Fresno", zip: "93706", path: "M15,160 L40,195 L80,205 L80,245 L80,290 L60,320 L15,320 Z", color: "#888780", lx: 48, ly: 250 },
+  { id: "93720", name: "Woodward Park", zip: "93720", color: "#5CAA6E", path: "M160,8 L290,8 L290,55 L280,72 L245,80 L195,78 L160,65 Z", lx: 225, ly: 40 },
+  { id: "93619", name: "Clovis East", zip: "93619", color: "#9BC8DC", path: "M350,0 L500,0 L500,250 L480,265 L440,230 L420,195 L410,155 L405,100 L385,55 L350,30 Z", lx: 455, ly: 100 },
+  { id: "93711", name: "NW Fresno", zip: "93711", color: "#E87CA0", path: "M55,25 L160,8 L160,65 L195,78 L195,130 L170,140 L120,145 L75,135 L55,105 L45,65 Z", lx: 120, ly: 78 },
+  { id: "93611", name: "North Clovis", zip: "93611", color: "#A8D5BA", path: "M290,8 L350,0 L350,30 L385,55 L405,100 L410,155 L370,162 L330,155 L290,145 L290,80 L290,55 Z", lx: 348, ly: 82 },
+  { id: "93710", name: "Bullard", zip: "93710", color: "#7CA6E9", path: "M195,78 L245,80 L280,72 L290,80 L290,145 L260,152 L195,148 L195,130 Z", lx: 242, ly: 115 },
+  { id: "93612", name: "Old Town Clovis", zip: "93612", color: "#CEB08E", path: "M290,145 L330,155 L370,162 L375,215 L340,222 L290,215 L260,208 L260,152 Z", lx: 318, ly: 182 },
+  { id: "93704", name: "Fig Garden", zip: "93704", color: "#9B6ED4", path: "M75,135 L120,145 L170,140 L195,148 L195,208 L165,215 L115,210 L75,200 Z", lx: 135, ly: 174 },
+  { id: "93726", name: "Central", zip: "93726", color: "#E8A0C0", path: "M195,148 L260,152 L260,208 L255,230 L225,235 L195,230 L195,208 Z", lx: 228, ly: 190 },
+  { id: "93705", name: "Fresno High", zip: "93705", color: "#D4956A", path: "M45,135 L75,135 L75,200 L115,210 L115,260 L80,265 L45,250 L30,200 Z", lx: 72, ly: 200 },
+  { id: "93722", name: "West Fresno", zip: "93722", color: "#B8B0A0", path: "M10,65 L45,65 L55,105 L45,135 L30,200 L10,190 Z", lx: 30, ly: 130 },
+  { id: "93728", name: "Tower District", zip: "93728", color: "#E8593C", path: "M80,265 L115,260 L115,210 L165,215 L195,208 L195,230 L195,278 L155,290 L100,285 L80,270 Z", lx: 140, ly: 252 },
+  { id: "93721", name: "Downtown", zip: "93721", color: "#E8A040", path: "M195,230 L225,235 L255,230 L260,260 L240,280 L210,285 L195,278 Z", lx: 225, ly: 258 },
+  { id: "93703", name: "Central Fresno", zip: "93703", color: "#5CAA6E", path: "M260,208 L290,215 L340,222 L375,215 L410,155 L420,195 L420,275 L380,290 L330,295 L280,285 L260,260 L255,230 Z", lx: 340, ly: 248 },
+  { id: "93702", name: "South Fresno", zip: "93702", color: "#D4736E", path: "M100,285 L155,290 L195,278 L210,285 L240,280 L280,285 L280,330 L230,345 L160,340 L110,325 L80,300 Z", lx: 185, ly: 312 },
+  { id: "93727", name: "SE Fresno", zip: "93727", color: "#8B6F47", path: "M280,285 L330,295 L380,290 L420,275 L440,230 L480,265 L500,250 L500,355 L400,355 L330,345 L280,330 Z", lx: 405, ly: 310 },
+  { id: "93706", name: "SW Fresno", zip: "93706", color: "#888780", path: "M10,190 L30,200 L45,250 L80,265 L80,300 L60,315 L10,310 Z", lx: 42, ly: 260 },
 ];
 
 function BuyerQuiz({ go }) {
@@ -435,18 +437,19 @@ function BuyerQuiz({ go }) {
       <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white, marginBottom: 4 }}>Where do you want to live?</div>
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>Tap the areas you're interested in — select as many as you'd like</div>
       <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", marginBottom: 8, padding: "8px 4px" }}>
-        <svg viewBox="0 0 500 385" style={{ width: "100%", height: "auto", display: "block" }}>
-          <text x="250" y="393" textAnchor="middle" style={{ fontSize: 8, fill: "rgba(255,255,255,0.2)", fontWeight: 500, letterSpacing: 2 }}>S O U T H</text>
-          <line x1="70" y1="75" x2="480" y2="75" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="3 3" />
-          <text x="488" y="78" style={{ fontSize: 6, fill: "rgba(255,255,255,0.18)" }}>Herndon</text>
-          <line x1="70" y1="145" x2="440" y2="145" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="3 3" />
-          <text x="448" y="148" style={{ fontSize: 6, fill: "rgba(255,255,255,0.18)" }}>Shaw</text>
-          <line x1="70" y1="205" x2="390" y2="205" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="3 3" />
-          <text x="398" y="208" style={{ fontSize: 6, fill: "rgba(255,255,255,0.18)" }}>Belmont</text>
-          <line x1="85" y1="20" x2="60" y2="330" stroke="rgba(255,255,255,0.05)" strokeWidth="1.5" />
-          <text x="50" y="20" style={{ fontSize: 6, fill: "rgba(255,255,255,0.15)", fontWeight: 600 }}>99</text>
-          <path d="M240,280 Q300,230 370,160 Q410,120 440,80" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1.5" />
-          <text x="445" y="75" style={{ fontSize: 6, fill: "rgba(255,255,255,0.15)", fontWeight: 600 }}>168</text>
+        <svg viewBox="0 0 510 365" style={{ width: "100%", height: "auto", display: "block" }}>
+          <line x1="45" y1="78" x2="410" y2="78" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="3 3" />
+          <text x="8" y="81" style={{ fontSize: 6, fill: "rgba(255,255,255,0.2)" }}>Herndon</text>
+          <line x1="45" y1="148" x2="375" y2="148" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="3 3" />
+          <text x="8" y="151" style={{ fontSize: 6, fill: "rgba(255,255,255,0.2)" }}>Shaw</text>
+          <line x1="75" y1="215" x2="375" y2="215" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5" strokeDasharray="3 3" />
+          <text x="8" y="218" style={{ fontSize: 6, fill: "rgba(255,255,255,0.15)" }}>Ashlan</text>
+          <line x1="80" y1="280" x2="280" y2="280" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" strokeDasharray="3 3" />
+          <text x="8" y="283" style={{ fontSize: 6, fill: "rgba(255,255,255,0.12)" }}>Belmont</text>
+          <line x1="45" y1="25" x2="25" y2="320" stroke="rgba(255,255,255,0.05)" strokeWidth="1.5" />
+          <text x="18" y="22" style={{ fontSize: 7, fill: "rgba(255,255,255,0.18)", fontWeight: 600 }}>99</text>
+          <path d="M240,300 Q310,240 370,170 Q400,130 430,90 Q450,60 470,30" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1.5" />
+          <text x="475" y="28" style={{ fontSize: 7, fill: "rgba(255,255,255,0.18)", fontWeight: 600 }}>168</text>
           {ZONES.map(z => {
             const sel = form.zones.includes(z.id);
             return (<g key={z.id} onClick={() => toggleZone(z.id)} style={{ cursor: "pointer" }}>
