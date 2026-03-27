@@ -42,6 +42,38 @@ function Bdg({ color, children }) { return <span style={{ fontSize: 10, fontWeig
 function SH({ label }) { return <div style={{ fontSize: 11, fontWeight: 700, color: B.dim, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 8, marginTop: 6 }}>{label}</div>; }
 function Spin() { return <div style={{ textAlign: "center", padding: 40, color: B.dim, fontSize: 13 }}>Loading...</div>; }
 
+function ReviewCards({ reviews, limit }) {
+  const list = limit ? reviews.slice(0, limit) : reviews;
+  if (!list.length) return null;
+  return (<div>
+    <SH label={`Client reviews · ${reviews.length} on Google`} />
+    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "flex", gap: 1 }}>{[1,2,3,4,5].map(i => <span key={i} style={{ color: "#FBBC04", fontSize: 16 }}>★</span>)}</div>
+      <span style={{ fontSize: 14, fontWeight: 700, color: B.charcoal }}>5.0</span>
+      <span style={{ fontSize: 12, color: B.dim }}>· {reviews.length} reviews on</span>
+      <span style={{ fontSize: 12, fontWeight: 700, color: "#4285F4" }}>Google</span>
+    </div>
+    <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 8, scrollbarWidth: "none", margin: "0 -14px", padding: "0 14px 8px" }}>
+      {list.map((r, i) => (
+        <div key={i} style={{ minWidth: 260, maxWidth: 280, background: B.white, borderRadius: 14, padding: 16, border: `1px solid ${B.brd}`, flexShrink: 0 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: "50%", background: `${B.gold}20`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, color: B.gold }}>{(r.client_name || "?").charAt(0)}</div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>{r.client_name}</div>
+                <div style={{ fontSize: 10, color: B.dim }}>{r.date_display}</div>
+              </div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          </div>
+          <div style={{ display: "flex", gap: 1, marginBottom: 8 }}>{[1,2,3,4,5].map(j => <span key={j} style={{ color: "#FBBC04", fontSize: 12 }}>★</span>)}</div>
+          <div style={{ fontSize: 12, color: B.slate, lineHeight: 1.6 }}>{r.review_text?.length > 180 ? r.review_text.slice(0, 180) + "..." : r.review_text}</div>
+        </div>
+      ))}
+    </div>
+  </div>);
+}
+
 function Nav({ active, go }) {
   const items = [{ id: "home", l: "Home", d: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1" }, { id: "explore", l: "Explore", d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" }, { id: "events", l: "Events", d: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" }, { id: "quiz", l: "Match", d: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z M15 11a3 3 0 11-6 0 3 3 0 016 0z" }, { id: "connect", l: "Connect", d: "M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" }];
   return (<div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", height: 56, background: B.white, borderTop: `1px solid ${B.brd}`, flexShrink: 0 }}>{items.map(it => (<button key={it.id} onClick={() => go(it.id)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, background: "none", border: "none", cursor: "pointer", padding: "4px 6px" }}><svg width="19" height="19" fill="none" stroke={active === it.id ? B.gold : B.dim} strokeWidth={active === it.id ? 2.2 : 1.6} viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round"><path d={it.d} /></svg><span style={{ fontSize: 9, fontWeight: active === it.id ? 700 : 400, color: active === it.id ? B.gold : B.dim, fontFamily: "inherit" }}>{it.l}</span></button>))}</div>);
@@ -118,7 +150,7 @@ function PartnerOnboard({ go }) {
   </div>);
 }
 
-function Home({ go, businesses, events, vendors }) {
+function Home({ go, businesses, events, vendors, reviews }) {
   const [tab, setTab] = useState("foryou");
   const tabs = [{ id: "foryou", l: "For you" }, { id: "biz", l: "Businesses" }, { id: "vendors", l: "Vendors" }, { id: "new", l: "New here?" }];
   return (<div style={{ background: B.off, minHeight: "100%" }}>
@@ -127,7 +159,7 @@ function Home({ go, businesses, events, vendors }) {
       {tab === "foryou" && <FYTab go={go} businesses={businesses} events={events} />}
       {tab === "biz" && <BizTab businesses={businesses} />}
       {tab === "vendors" && <VendorTab vendors={vendors} />}
-      {tab === "new" && <NewTab go={go} />}
+      {tab === "new" && <NewTab go={go} reviews={reviews} />}
     </div>
   </div>);
 }
@@ -168,11 +200,12 @@ function VendorTab({ vendors }) {
   </div>);
 }
 
-function NewTab({ go }) {
+function NewTab({ go, reviews }) {
   return (<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
     <div style={{ background: `linear-gradient(145deg, ${B.black}, #1a1c2e)`, borderRadius: 18, padding: 20, color: B.white }}><div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>WELCOME</div><div style={{ fontFamily: "var(--hf)", fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Moving to Fresno or Clovis?</div><div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: 12 }}>Find your neighborhood, connect with vendors, feel at home before you move.</div><div style={{ display: "flex", gap: 8 }}><button onClick={() => go("quiz")} style={{ padding: "10px 18px", background: B.gold, border: "none", borderRadius: 10, fontSize: 12, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Find my hood →</button><button onClick={() => go("calc")} style={{ padding: "10px 18px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, fontSize: 12, fontWeight: 600, color: B.white, cursor: "pointer", fontFamily: "inherit" }}>Cost calculator</button></div></div>
     <SH label="Quick facts" />
     {[{ l: "Median Price", v: "$400K", s: "vs $905K statewide", e: "🏠" },{ l: "Days on Market", v: "59", s: "Balanced market", e: "📊" },{ l: "Top Schools", v: "Clovis Unified", s: "A-rated", e: "🎓" },{ l: "Price Growth", v: "2.6% YoY", s: "Steady", e: "📈" },{ l: "To Yosemite", v: "~90 min", s: "Weekend trips", e: "⛰️" }].map((f, i) => (<div key={i} style={{ display: "flex", alignItems: "center", gap: 10, background: B.white, borderRadius: 12, padding: "11px 13px", border: `1px solid ${B.brd}` }}><span style={{ fontSize: 22, width: 36, textAlign: "center", flexShrink: 0 }}>{f.e}</span><div style={{ flex: 1 }}><div style={{ fontSize: 10, color: B.dim }}>{f.l}</div><div style={{ fontSize: 16, fontWeight: 700, color: B.charcoal }}>{f.v}</div></div><div style={{ fontSize: 10, color: B.slate }}>{f.s}</div></div>))}
+    {reviews.length > 0 && <ReviewCards reviews={reviews} limit={6} />}
     <div style={{ background: B.white, borderRadius: 14, padding: 14, border: `1px solid ${B.brd}` }}><div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}><Logo size={40} /><div><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>Chris Patterson</div><a href="https://instagram.com/Chrispattersonre" target="_blank" rel="noopener" style={{ fontSize: 10, color: B.purple, textDecoration: "none", fontWeight: 600 }}>{IG}</a></div></div><div style={{ fontSize: 11, color: B.slate, lineHeight: 1.6, fontStyle: "italic", marginBottom: 10 }}>"I connect people to homes, community, and opportunities."</div><div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}><CallBtn full style={{ flex: 1, justifyContent: "center" }} /><TextBtn style={{ flex: 1, justifyContent: "center" }} /><IgBtn style={{ flex: "1 1 48%", justifyContent: "center" }} /><EmailBtn style={{ flex: "1 1 48%", justifyContent: "center" }} /></div></div>
   </div>);
 }
@@ -218,23 +251,24 @@ function CostCalc({ go }) {
   return (<div style={{ background: B.off, minHeight: "100%", paddingBottom: 90 }}><div style={{ background: B.black, padding: "16px 16px 20px", borderRadius: "0 0 22px 22px" }}><button onClick={() => go("home")} style={{ background: "none", border: "none", color: B.gold, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", padding: 0, marginBottom: 10 }}>← Back</button><div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white }}>Cost of living calculator</div><div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>{Object.keys(COL).filter(c => c !== "Fresno/Clovis").map(c => (<button key={c} onClick={() => setCity(c)} style={{ padding: "7px 12px", borderRadius: 18, border: `1px solid ${city === c ? B.gold : "rgba(255,255,255,0.1)"}`, fontSize: 11, fontWeight: city === c ? 700 : 400, background: city === c ? `${B.gold}20` : "transparent", color: city === c ? B.gold : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit" }}>{c}</button>))}</div></div><div style={{ padding: "14px 14px" }}><div style={{ background: `linear-gradient(135deg, ${B.success}10, ${B.gold}08)`, borderRadius: 16, padding: 18, marginBottom: 14, textAlign: "center" }}><div style={{ fontSize: 12, color: B.success, fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}>You could save</div><div style={{ fontSize: 32, fontWeight: 700, color: B.success, marginTop: 4 }}>{sv(fr.median, co.median)}</div><div style={{ fontSize: 12, color: B.slate }}>on a home purchase alone</div></div>{[{ l: "Median Home", a: `$${co.median.toLocaleString()}`, b: `$${fr.median.toLocaleString()}`, d: pct(fr.median, co.median) },{ l: "Rent (1BR)", a: `$${co.rent}/mo`, b: `$${fr.rent}/mo`, d: pct(fr.rent, co.rent) },{ l: "Groceries", a: `$${co.groceries}`, b: `$${fr.groceries}`, d: pct(fr.groceries, co.groceries) },{ l: "Gas/gal", a: `$${co.gas.toFixed(2)}`, b: `$${fr.gas.toFixed(2)}`, d: pct(fr.gas, co.gas) },{ l: "Dinner out", a: `$${co.dining}`, b: `$${fr.dining}`, d: pct(fr.dining, co.dining) },{ l: "Utilities", a: `$${co.utilities}`, b: `$${fr.utilities}`, d: pct(fr.utilities, co.utilities) }].map((r, i) => (<div key={i} style={{ background: B.white, borderRadius: 12, padding: 12, marginBottom: 8, border: `1px solid ${B.brd}` }}><div style={{ fontSize: 11, color: B.dim, fontWeight: 600, marginBottom: 6 }}>{r.l}</div><div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}><div style={{ textAlign: "center", flex: 1 }}><div style={{ fontSize: 10, color: B.dim }}>{city}</div><div style={{ fontSize: 15, fontWeight: 700, color: B.charcoal }}>{r.a}</div></div><div style={{ padding: "4px 10px", borderRadius: 8, background: r.d > 0 ? `${B.success}15` : `${B.danger}15`, fontSize: 12, fontWeight: 700, color: r.d > 0 ? B.success : B.danger }}>{r.d > 0 ? `${r.d}% less` : `${Math.abs(r.d)}% more`}</div><div style={{ textAlign: "center", flex: 1 }}><div style={{ fontSize: 10, color: B.dim }}>Fresno</div><div style={{ fontSize: 15, fontWeight: 700, color: B.success }}>{r.b}</div></div></div></div>))}<button onClick={() => go("quiz")} style={{ width: "100%", padding: "14px", background: B.gold, border: "none", borderRadius: 12, fontSize: 13, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit", marginTop: 6 }}>Find my neighborhood →</button></div></div>);
 }
 
-function Connect({ go }) {
-  return (<div style={{ background: B.off, minHeight: "100%", paddingBottom: 90 }}><div style={{ background: `linear-gradient(160deg, ${B.black}, #151725)`, padding: "18px 14px 26px", borderRadius: "0 0 22px 22px", textAlign: "center" }}><Logo size={48} light /><div style={{ fontSize: 17, fontWeight: 700, color: B.white, marginTop: 10 }}>Chris Patterson</div><div style={{ fontSize: 11, color: B.gold, marginTop: 3 }}>Fresno · Clovis · Madera · Mariposa</div><a href="https://instagram.com/Chrispattersonre" target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: B.purple, textDecoration: "none", fontWeight: 600, marginTop: 6 }}>📷 {IG}</a><div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>Real Broker — Trafton Home Team · DRE #02097979</div><div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{EMAIL}</div><div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 14, flexWrap: "wrap" }}><CallBtn full /><TextBtn /><EmailBtn /><IgBtn /></div></div><div style={{ padding: "14px 14px" }}><SH label="I can help with" />{[{ em: "🏠", t: "Buy a home", d: "First-time or move-up" },{ em: "📋", t: "Sell your home", d: "Market analysis & listing" },{ em: "💰", t: "Investment", d: "Rental analysis, ADUs" },{ em: "🔑", t: "Relocation", d: "Full support" },{ em: "🤝", t: "Agent referral", d: "25% on closed deals" }].map((s, i) => (<div key={i} style={{ display: "flex", gap: 10, background: B.white, borderRadius: 12, padding: 12, marginBottom: 6, border: `1px solid ${B.brd}`, alignItems: "center" }}><span style={{ fontSize: 22, width: 36, textAlign: "center", flexShrink: 0 }}>{s.em}</span><div><div style={{ fontSize: 12, fontWeight: 700, color: B.charcoal }}>{s.t}</div><div style={{ fontSize: 10, color: B.dim }}>{s.d}</div></div></div>))}<div style={{ display: "flex", gap: 8, marginTop: 10 }}><button onClick={() => go("referral")} style={{ flex: 1, padding: "12px", background: `linear-gradient(135deg, ${B.charcoal}, ${B.black})`, border: "none", borderRadius: 12, fontSize: 11, fontWeight: 700, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>Submit referral</button><button onClick={() => go("partner")} style={{ flex: 1, padding: "12px", background: `${B.gold}15`, border: `1px solid ${B.gold}30`, borderRadius: 12, fontSize: 11, fontWeight: 700, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>Become a partner</button></div></div></div>);
+function Connect({ go, reviews }) {
+  return (<div style={{ background: B.off, minHeight: "100%", paddingBottom: 90 }}><div style={{ background: `linear-gradient(160deg, ${B.black}, #151725)`, padding: "18px 14px 26px", borderRadius: "0 0 22px 22px", textAlign: "center" }}><Logo size={48} light /><div style={{ fontSize: 17, fontWeight: 700, color: B.white, marginTop: 10 }}>Chris Patterson</div><div style={{ fontSize: 11, color: B.gold, marginTop: 3 }}>Fresno · Clovis · Madera · Mariposa</div><a href="https://instagram.com/Chrispattersonre" target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: B.purple, textDecoration: "none", fontWeight: 600, marginTop: 6 }}>📷 {IG}</a><div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>Real Broker — Trafton Home Team · DRE #02097979</div><div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{EMAIL}</div><div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 14, flexWrap: "wrap" }}><CallBtn full /><TextBtn /><EmailBtn /><IgBtn /></div></div><div style={{ padding: "14px 14px" }}><SH label="I can help with" />{[{ em: "🏠", t: "Buy a home", d: "First-time or move-up" },{ em: "📋", t: "Sell your home", d: "Market analysis & listing" },{ em: "💰", t: "Investment", d: "Rental analysis, ADUs" },{ em: "🔑", t: "Relocation", d: "Full support" },{ em: "🤝", t: "Agent referral", d: "25% on closed deals" }].map((s, i) => (<div key={i} style={{ display: "flex", gap: 10, background: B.white, borderRadius: 12, padding: 12, marginBottom: 6, border: `1px solid ${B.brd}`, alignItems: "center" }}><span style={{ fontSize: 22, width: 36, textAlign: "center", flexShrink: 0 }}>{s.em}</span><div><div style={{ fontSize: 12, fontWeight: 700, color: B.charcoal }}>{s.t}</div><div style={{ fontSize: 10, color: B.dim }}>{s.d}</div></div></div>))}<div style={{ display: "flex", gap: 8, marginTop: 10 }}><button onClick={() => go("referral")} style={{ flex: 1, padding: "12px", background: `linear-gradient(135deg, ${B.charcoal}, ${B.black})`, border: "none", borderRadius: 12, fontSize: 11, fontWeight: 700, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>Submit referral</button><button onClick={() => go("partner")} style={{ flex: 1, padding: "12px", background: `${B.gold}15`, border: `1px solid ${B.gold}30`, borderRadius: 12, fontSize: 11, fontWeight: 700, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>Become a partner</button></div>{reviews.length > 0 && <div style={{ marginTop: 16 }}><ReviewCards reviews={reviews} /></div>}</div></div>);
 }
 
 export default function App() {
   const [scr, setScr] = useState("splash"); const [nav, setNav] = useState("home");
-  const [businesses, setBiz] = useState([]); const [events, setEv] = useState([]); const [vendors, setVen] = useState([]);
+  const [businesses, setBiz] = useState([]); const [events, setEv] = useState([]); const [vendors, setVen] = useState([]); const [reviews, setRev] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const [b, e, v] = await Promise.all([
+      const [b, e, v, r] = await Promise.all([
         dbGet("businesses", "approved=eq.true&order=featured.desc,rating.desc"),
         dbGet("events", "active=eq.true&order=date_sort.asc"),
         dbGet("vendors", "active=eq.true&order=name.asc"),
+        dbGet("reviews", "featured=eq.true&order=created_at.desc"),
       ]);
-      setBiz(b); setEv(e); setVen(v); setLoaded(true);
+      setBiz(b); setEv(e); setVen(v); setRev(r); setLoaded(true);
     })();
   }, []);
 
@@ -249,11 +283,11 @@ export default function App() {
           {scr === "splash" && <Splash go={go} />}
           {scr === "referral" && <ReferralPortal go={go} />}
           {scr === "partner" && <PartnerOnboard go={go} />}
-          {scr === "home" && <Home go={go} businesses={businesses} events={events} vendors={vendors} />}
+          {scr === "home" && <Home go={go} businesses={businesses} events={events} vendors={vendors} reviews={reviews} />}
           {scr === "explore" && <ExploreScreen businesses={businesses} vendors={vendors} />}
           {scr === "events" && <EventsScreen events={events} />}
           {scr === "quiz" && <Quiz go={go} />}
-          {scr === "connect" && <Connect go={go} />}
+          {scr === "connect" && <Connect go={go} reviews={reviews} />}
           {scr === "calc" && <CostCalc go={go} />}
         </div>
         {showNav && <div style={{ position: "sticky", bottom: 0 }}><Nav active={nav} go={go} /></div>}
