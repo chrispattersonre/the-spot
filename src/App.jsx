@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 const SUPA_URL = "https://rxhgthwulgbggubiewmi.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4aGd0aHd1bGdiZ2d1Ymlld21pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTc0NDUsImV4cCI6MjA5MDEzMzQ0NX0.HDjjEKcz6yD8eUV0ma9_opOS9JOsWPgsH59lDeLQA8A";
@@ -805,6 +806,7 @@ export default function App() {
         </div>
         {showNav && <div style={{ position: "sticky", bottom: 0 }}><Nav active={nav} go={go} /></div>}
       </div>
+      <Analytics />
     </div>
   );
 }
