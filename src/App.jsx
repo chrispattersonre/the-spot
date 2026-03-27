@@ -379,16 +379,20 @@ function Quiz({ go }) {
 }
 
 const ZONES = [
-  { id: "nw", name: "NW Fresno", zip: "93711", x: 15, y: 20, w: 28, h: 25, color: "#7CA6E9" },
-  { id: "wp", name: "Woodward Park", zip: "93720", x: 43, y: 10, w: 28, h: 22, color: "#5CAA6E" },
-  { id: "fig", name: "Fig Garden", zip: "93704", x: 15, y: 45, w: 25, h: 22, color: "#9B6ED4" },
-  { id: "tower", name: "Tower District", zip: "93728", x: 15, y: 67, w: 25, h: 22, color: "#E8593C" },
-  { id: "dt", name: "Downtown", zip: "93721", x: 40, y: 67, w: 22, h: 22, color: "#E8A040" },
-  { id: "otc", name: "Old Town Clovis", zip: "93612", x: 62, y: 32, w: 25, h: 22, color: "#CEB08E" },
-  { id: "lv", name: "Loma Vista", zip: "93619", x: 72, y: 10, w: 22, h: 22, color: "#9BC8DC" },
-  { id: "ce", name: "Clovis East", zip: "93619", x: 62, y: 54, w: 25, h: 22, color: "#8B6F47" },
-  { id: "se", name: "SE Fresno", zip: "93725", x: 40, y: 45, w: 22, h: 22, color: "#D4736E" },
-  { id: "mad", name: "Madera County", zip: "93637", x: 15, y: 0, w: 80, h: 12, color: "#888780" },
+  { id: "93720", name: "Woodward Park", zip: "93720", color: "#5CAA6E", path: "M205,5 L310,5 L330,25 L330,85 L285,95 L240,95 L205,85 Z", lx: 265, ly: 50 },
+  { id: "93711", name: "NW Fresno", zip: "93711", color: "#E87CA0", path: "M70,15 L205,5 L205,85 L240,95 L240,140 L190,155 L130,155 L80,140 L60,100 L55,60 Z", lx: 150, ly: 85 },
+  { id: "93710", name: "Bullard", zip: "93710", color: "#7CA6E9", path: "M240,95 L285,95 L310,105 L310,160 L240,160 L240,140 Z", lx: 275, ly: 128 },
+  { id: "93612", name: "Clovis", zip: "93612", color: "#CEB08E", path: "M310,75 L390,55 L420,70 L420,165 L370,175 L310,160 L310,105 L330,85 L330,25 Z", lx: 365, ly: 118 },
+  { id: "93619", name: "East Clovis", zip: "93619", color: "#9BC8DC", path: "M390,5 L470,5 L470,180 L420,185 L420,70 L390,55 Z", lx: 440, ly: 90 },
+  { id: "93704", name: "Fig Garden", zip: "93704", color: "#9B6ED4", path: "M130,155 L190,155 L240,140 L240,160 L240,210 L190,215 L130,210 Z", lx: 185, ly: 182 },
+  { id: "93722", name: "West Fresno", zip: "93722", color: "#E87CA0", path: "M5,80 L55,60 L80,140 L130,155 L130,210 L130,260 L80,265 L30,250 L5,200 Z", lx: 65, ly: 170 },
+  { id: "93723", name: "Far West", zip: "93723", color: "#D4956A", path: "M5,200 L30,250 L80,265 L80,370 L5,370 Z", lx: 42, ly: 300 },
+  { id: "93703", name: "Central Fresno", zip: "93703", color: "#5CAA6E", path: "M190,215 L240,210 L240,160 L310,160 L310,210 L290,225 L255,230 L220,228 L190,220 Z", lx: 250, ly: 195 },
+  { id: "93728", name: "Tower District", zip: "93728", color: "#E8593C", path: "M130,210 L190,215 L190,220 L220,228 L220,290 L180,310 L130,310 L130,260 Z", lx: 168, ly: 260 },
+  { id: "93721", name: "Downtown", zip: "93721", color: "#E8A040", path: "M220,228 L255,230 L290,225 L290,295 L260,310 L220,290 Z", lx: 255, ly: 268 },
+  { id: "93702", name: "South Fresno", zip: "93702", color: "#D4736E", path: "M180,310 L220,290 L260,310 L290,295 L310,315 L310,390 L240,400 L180,390 L130,370 L130,310 Z", lx: 230, ly: 350 },
+  { id: "93706", name: "SW Fresno", zip: "93706", color: "#888780", path: "M80,265 L130,260 L130,310 L130,370 L80,370 Z", lx: 105, ly: 318 },
+  { id: "93727", name: "SE Fresno", zip: "93727", color: "#8B6F47", path: "M290,225 L310,210 L370,175 L420,165 L420,185 L430,280 L400,350 L350,380 L310,390 L310,315 L290,295 Z", lx: 365, ly: 280 },
 ];
 
 function BuyerQuiz({ go }) {
@@ -430,20 +434,31 @@ function BuyerQuiz({ go }) {
       <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 2 OF 5</div>
       <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, color: B.white, marginBottom: 4 }}>Where do you want to live?</div>
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", marginBottom: 16 }}>Tap the areas you're interested in — select as many as you'd like</div>
-      <div style={{ position: "relative", width: "100%", paddingBottom: "75%", background: "rgba(255,255,255,0.03)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", marginBottom: 12 }}>
-        <div style={{ position: "absolute", top: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: "rgba(255,255,255,0.3)", fontWeight: 600, letterSpacing: 2, textTransform: "uppercase" }}>NORTH ↑</div>
-        <div style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", fontSize: 8, color: "rgba(255,255,255,0.3)", fontWeight: 600, letterSpacing: 2 }}>↓ SOUTH</div>
-        <div style={{ position: "absolute", left: 4, top: "50%", transform: "translateY(-50%) rotate(-90deg)", fontSize: 8, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>FRESNO</div>
-        <div style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%) rotate(90deg)", fontSize: 8, color: "rgba(255,255,255,0.3)", fontWeight: 600 }}>CLOVIS</div>
-        {ZONES.map(z => {
-          const sel = form.zones.includes(z.id);
-          return (<button key={z.id} onClick={() => toggleZone(z.id)} style={{ position: "absolute", left: `${z.x}%`, top: `${z.y}%`, width: `${z.w}%`, height: `${z.h}%`, background: sel ? `${z.color}40` : "rgba(255,255,255,0.04)", border: `2px solid ${sel ? z.color : "rgba(255,255,255,0.1)"}`, borderRadius: 10, cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", transition: "all 0.15s", padding: 2 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: sel ? z.color : "rgba(255,255,255,0.5)" }}>{z.name}</div>
-            <div style={{ fontSize: 8, color: sel ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.3)" }}>{z.zip}</div>
-          </button>);
-        })}
+      <div style={{ background: "rgba(255,255,255,0.03)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", overflow: "hidden", marginBottom: 8, padding: "8px 4px" }}>
+        <svg viewBox="0 0 480 410" style={{ width: "100%", height: "auto", display: "block" }}>
+          <text x="240" y="14" textAnchor="middle" style={{ fontSize: 9, fill: "rgba(255,255,255,0.25)", fontWeight: 600, letterSpacing: 2 }}>NORTH</text>
+          <text x="15" y="210" style={{ fontSize: 8, fill: "rgba(255,255,255,0.2)", fontWeight: 600 }} transform="rotate(-90,15,210)">FRESNO</text>
+          <text x="465" y="210" style={{ fontSize: 8, fill: "rgba(255,255,255,0.2)", fontWeight: 600 }} transform="rotate(90,465,210)">CLOVIS</text>
+          <text x="240" y="405" textAnchor="middle" style={{ fontSize: 9, fill: "rgba(255,255,255,0.25)", fontWeight: 600, letterSpacing: 2 }}>SOUTH</text>
+          <line x1="120" y1="155" x2="420" y2="155" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" strokeDasharray="4 3" />
+          <text x="475" y="158" style={{ fontSize: 7, fill: "rgba(255,255,255,0.15)" }}>Shaw</text>
+          <line x1="120" y1="225" x2="380" y2="225" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="4 3" />
+          {ZONES.map(z => {
+            const sel = form.zones.includes(z.id);
+            return (<g key={z.id} onClick={() => toggleZone(z.id)} style={{ cursor: "pointer" }}>
+              <path d={z.path} fill={sel ? `${z.color}50` : "rgba(255,255,255,0.04)"} stroke={sel ? z.color : "rgba(255,255,255,0.12)"} strokeWidth={sel ? 2 : 0.8} style={{ transition: "all 0.15s" }} />
+              <text x={z.lx} y={z.ly - 6} textAnchor="middle" style={{ fontSize: 9, fontWeight: 700, fill: sel ? z.color : "rgba(255,255,255,0.5)", pointerEvents: "none" }}>{z.name}</text>
+              <text x={z.lx} y={z.ly + 6} textAnchor="middle" style={{ fontSize: 8, fill: sel ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)", pointerEvents: "none" }}>{z.zip}</text>
+            </g>);
+          })}
+        </svg>
       </div>
-      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{form.zones.length === 0 ? "No areas selected yet" : `${form.zones.length} area${form.zones.length > 1 ? "s" : ""} selected`}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 8 }}>
+        {form.zones.map(zid => { const z = ZONES.find(zn => zn.id === zid); return z ? (
+          <span key={zid} onClick={() => toggleZone(zid)} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 8, background: `${z.color}25`, border: `1px solid ${z.color}50`, fontSize: 10, fontWeight: 700, color: z.color, cursor: "pointer" }}>{z.name} · {z.zip} ×</span>
+        ) : null; })}
+      </div>
+      <div style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{form.zones.length === 0 ? "Tap on the map to select areas" : `${form.zones.length} area${form.zones.length > 1 ? "s" : ""} selected`}</div>
     </div>),
 
     () => (<div>
