@@ -3,9 +3,12 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 const SUPA_URL = "https://rxhgthwulgbggubiewmi.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ4aGd0aHd1bGdiZ2d1Ymlld21pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTc0NDUsImV4cCI6MjA5MDEzMzQ0NX0.HDjjEKcz6yD8eUV0ma9_opOS9JOsWPgsH59lDeLQA8A";
 const H = { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, "Content-Type": "application/json", Prefer: "return=representation" };
+const ADMIN_PASS = "123Cpatt123";
 
 async function dbGet(table, query = "") { try { const r = await fetch(`${SUPA_URL}/rest/v1/${table}?select=*${query ? "&" + query : ""}`, { headers: H }); return r.ok ? await r.json() : []; } catch { return []; } }
 async function dbInsert(table, data) { try { const r = await fetch(`${SUPA_URL}/rest/v1/${table}`, { method: "POST", headers: H, body: JSON.stringify(data) }); return r.ok; } catch { return false; } }
+async function dbUpdate(table, id, data) { try { const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, { method: "PATCH", headers: H, body: JSON.stringify(data) }); return r.ok; } catch { return false; } }
+async function dbDelete(table, id) { try { const r = await fetch(`${SUPA_URL}/rest/v1/${table}?id=eq.${id}`, { method: "DELETE", headers: { ...H, Prefer: "" } }); return r.ok; } catch { return false; } }
 async function uploadLogo(file) { try { const ext = file.name.split(".").pop(); const name = `${Date.now()}.${ext}`; const r = await fetch(`${SUPA_URL}/storage/v1/object/logos/${name}`, { method: "POST", headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}`, "Content-Type": file.type }, body: file }); if (r.ok) return `${SUPA_URL}/storage/v1/object/public/logos/${name}`; return null; } catch { return null; } }
 
 const B = { black: "#0A0A0A", charcoal: "#404041", slate: "#404C56", lightBlue: "#9BC8DC", medBlue: "#7CA6E9", gold: "#CEB08E", white: "#FFFFFF", off: "#F7F6F3", dim: "#8A8A8A", brd: "rgba(0,0,0,0.06)", danger: "#E8593C", success: "#5CAA6E", purple: "#9B6ED4", brown: "#8B6F47", orange: "#E8A040" };
@@ -255,8 +258,221 @@ function Connect({ go, reviews }) {
   return (<div style={{ background: B.off, minHeight: "100%", paddingBottom: 90 }}><div style={{ background: `linear-gradient(160deg, ${B.black}, #151725)`, padding: "18px 14px 26px", borderRadius: "0 0 22px 22px", textAlign: "center" }}><Logo size={48} light /><div style={{ fontSize: 17, fontWeight: 700, color: B.white, marginTop: 10 }}>Chris Patterson</div><div style={{ fontSize: 11, color: B.gold, marginTop: 3 }}>Fresno · Clovis · Madera · Mariposa</div><a href="https://instagram.com/Chrispattersonre" target="_blank" rel="noopener" style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, color: B.purple, textDecoration: "none", fontWeight: 600, marginTop: 6 }}>📷 {IG}</a><div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>Real Broker — Trafton Home Team · DRE #02097979</div><div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{EMAIL}</div><div style={{ display: "flex", gap: 8, justifyContent: "center", marginTop: 14, flexWrap: "wrap" }}><CallBtn full /><TextBtn /><EmailBtn /><IgBtn /></div></div><div style={{ padding: "14px 14px" }}><SH label="I can help with" />{[{ em: "🏠", t: "Buy a home", d: "First-time or move-up" },{ em: "📋", t: "Sell your home", d: "Market analysis & listing" },{ em: "💰", t: "Investment", d: "Rental analysis, ADUs" },{ em: "🔑", t: "Relocation", d: "Full support" },{ em: "🤝", t: "Agent referral", d: "25% on closed deals" }].map((s, i) => (<div key={i} style={{ display: "flex", gap: 10, background: B.white, borderRadius: 12, padding: 12, marginBottom: 6, border: `1px solid ${B.brd}`, alignItems: "center" }}><span style={{ fontSize: 22, width: 36, textAlign: "center", flexShrink: 0 }}>{s.em}</span><div><div style={{ fontSize: 12, fontWeight: 700, color: B.charcoal }}>{s.t}</div><div style={{ fontSize: 10, color: B.dim }}>{s.d}</div></div></div>))}<div style={{ display: "flex", gap: 8, marginTop: 10 }}><button onClick={() => go("referral")} style={{ flex: 1, padding: "12px", background: `linear-gradient(135deg, ${B.charcoal}, ${B.black})`, border: "none", borderRadius: 12, fontSize: 11, fontWeight: 700, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>Submit referral</button><button onClick={() => go("partner")} style={{ flex: 1, padding: "12px", background: `${B.gold}15`, border: `1px solid ${B.gold}30`, borderRadius: 12, fontSize: 11, fontWeight: 700, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>Become a partner</button></div>{reviews.length > 0 && <div style={{ marginTop: 16 }}><ReviewCards reviews={reviews} /></div>}</div></div>);
 }
 
+function Admin({ onExit }) {
+  const [pw, setPw] = useState(""); const [auth, setAuth] = useState(false);
+  const [tab, setTab] = useState("referrals");
+  const [data, setData] = useState({ referrals: [], partners: [], events: [], businesses: [], vendors: [], reviews: [], quiz: [] });
+  const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(null);
+  const [form, setForm] = useState({});
+  const up = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const load = async () => {
+    setLoading(true);
+    const [referrals, partners, events, businesses, vendors, reviews, quiz] = await Promise.all([
+      dbGet("referrals", "order=created_at.desc"),
+      dbGet("partner_applications", "order=created_at.desc"),
+      dbGet("events", "order=date_sort.asc"),
+      dbGet("businesses", "order=created_at.desc"),
+      dbGet("vendors", "order=name.asc"),
+      dbGet("reviews", "order=created_at.desc"),
+      dbGet("quiz_responses", "order=created_at.desc"),
+    ]);
+    setData({ referrals, partners, events, businesses, vendors, reviews, quiz });
+    setLoading(false);
+  };
+
+  useEffect(() => { if (auth) load(); }, [auth]);
+
+  if (!auth) return (
+    <div style={{ minHeight: "100vh", background: B.black, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32 }}>
+      <Logo size={48} light />
+      <div style={{ fontFamily: "var(--hf)", fontSize: 22, fontWeight: 700, color: B.white, marginTop: 16, marginBottom: 4 }}>Admin dashboard</div>
+      <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 24 }}>Enter your password</div>
+      <input type="password" value={pw} onChange={e => setPw(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && pw === ADMIN_PASS) setAuth(true); }} placeholder="Password" style={{ width: "100%", maxWidth: 280, padding: "12px 16px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12, fontSize: 15, color: B.white, fontFamily: "inherit", outline: "none", textAlign: "center", boxSizing: "border-box", marginBottom: 12 }} />
+      <button onClick={() => { if (pw === ADMIN_PASS) setAuth(true); else alert("Wrong password"); }} style={{ width: "100%", maxWidth: 280, padding: "12px", background: B.gold, border: "none", borderRadius: 12, fontSize: 14, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Log in</button>
+      <button onClick={onExit} style={{ marginTop: 16, background: "none", border: "none", color: "rgba(255,255,255,0.4)", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>← Back to app</button>
+    </div>
+  );
+
+  const tabs = [
+    { id: "referrals", l: "Referrals", count: data.referrals.length },
+    { id: "partners", l: "Partners", count: data.partners.length },
+    { id: "events", l: "Events", count: data.events.length },
+    { id: "businesses", l: "Businesses", count: data.businesses.length },
+    { id: "vendors", l: "Vendors", count: data.vendors.length },
+    { id: "reviews", l: "Reviews", count: data.reviews.length },
+    { id: "quiz", l: "Quiz", count: data.quiz.length },
+  ];
+
+  const card = (children, extra = {}) => <div style={{ background: B.white, borderRadius: 12, padding: 14, marginBottom: 8, border: `1px solid ${B.brd}`, ...extra }}>{children}</div>;
+  const label = (t) => <div style={{ fontSize: 10, color: B.dim, fontWeight: 600, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2 }}>{t}</div>;
+  const val = (t) => <div style={{ fontSize: 13, fontWeight: 600, color: B.charcoal, marginBottom: 6 }}>{t || "—"}</div>;
+  const statusBadge = (s) => {
+    const colors = { new: B.medBlue, pending: B.orange, contacted: B.gold, approved: B.success, declined: B.danger, closed: B.success };
+    return <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 6, background: `${colors[s] || B.dim}18`, color: colors[s] || B.dim, textTransform: "uppercase" }}>{s}</span>;
+  };
+
+  const statusBtn = async (table, id, newStatus) => {
+    await dbUpdate(table, id, { status: newStatus });
+    load();
+  };
+
+  const deleteRow = async (table, id) => {
+    if (confirm("Delete this permanently?")) { await dbDelete(table, id); load(); }
+  };
+
+  const addEvent = async () => {
+    await dbInsert("events", { ...form, is_hot: form.is_hot === "true", is_free: form.is_free === "true", active: true });
+    setShowForm(null); setForm({}); load();
+  };
+
+  const addBiz = async () => {
+    await dbInsert("businesses", { ...form, rating: parseFloat(form.rating) || 0, reviews: parseInt(form.reviews_count) || 0, featured: form.featured === "true", approved: true });
+    setShowForm(null); setForm({}); load();
+  };
+
+  const addReview = async () => {
+    await dbInsert("reviews", { ...form, rating: parseInt(form.rating) || 5, featured: true });
+    setShowForm(null); setForm({}); load();
+  };
+
+  const inp = (l, k, ph) => <div style={{ marginBottom: 10 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 3 }}>{l}</label><input value={form[k] || ""} onChange={e => up(k, e.target.value)} placeholder={ph} style={{ width: "100%", padding: "9px 10px", border: `1px solid ${B.brd}`, borderRadius: 8, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }} /></div>;
+
+  return (
+    <div style={{ minHeight: "100vh", background: B.off, fontFamily: "'DM Sans', sans-serif", "--hf": "'Playfair Display', serif" }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <div style={{ background: B.black, padding: "14px 16px 12px", position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}><Logo size={28} light /><div style={{ fontSize: 16, fontWeight: 700, color: B.white }}>Admin</div></div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={load} style={{ padding: "6px 12px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, fontSize: 11, fontWeight: 600, color: B.white, cursor: "pointer", fontFamily: "inherit" }}>Refresh</button>
+            <button onClick={onExit} style={{ padding: "6px 12px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, fontSize: 11, fontWeight: 600, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>Exit</button>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 4, overflowX: "auto", scrollbarWidth: "none" }}>
+          {tabs.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ padding: "5px 10px", borderRadius: 16, border: "none", fontSize: 10, fontWeight: tab === t.id ? 700 : 400, background: tab === t.id ? B.gold : "rgba(255,255,255,0.07)", color: tab === t.id ? B.black : "rgba(255,255,255,0.5)", cursor: "pointer", fontFamily: "inherit", whiteSpace: "nowrap" }}>{t.l} ({t.count})</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: "12px 14px 40px" }}>
+        {loading && <Spin />}
+
+        {tab === "referrals" && !loading && <>
+          <SH label="Agent referrals" />
+          {data.referrals.map((r, i) => card(<div key={i}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 6 }}><div><div style={{ fontSize: 14, fontWeight: 700, color: B.charcoal }}>{r.agent_name || "Unknown"}</div><div style={{ fontSize: 11, color: B.dim }}>{r.brokerage}</div></div>{statusBadge(r.status)}</div>
+            {label("Agent contact")}{val(`${r.agent_phone || ""} · ${r.agent_email || ""}`)}{label("Client")}{val(`${r.client_name || ""} · ${r.client_phone || ""}`)}{label("Timeline")}{val(r.timeline)}{label("Notes")}{val(r.notes)}
+            <div style={{ fontSize: 10, color: B.dim, marginBottom: 8 }}>{new Date(r.created_at).toLocaleDateString()}</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button onClick={() => statusBtn("referrals", r.id, "contacted")} style={{ flex: 1, padding: "7px", background: `${B.gold}15`, border: `1px solid ${B.gold}30`, borderRadius: 8, fontSize: 10, fontWeight: 700, color: B.gold, cursor: "pointer", fontFamily: "inherit" }}>Contacted</button>
+              <button onClick={() => statusBtn("referrals", r.id, "closed")} style={{ flex: 1, padding: "7px", background: `${B.success}15`, border: `1px solid ${B.success}30`, borderRadius: 8, fontSize: 10, fontWeight: 700, color: B.success, cursor: "pointer", fontFamily: "inherit" }}>Closed</button>
+              <button onClick={() => deleteRow("referrals", r.id)} style={{ padding: "7px 10px", background: `${B.danger}10`, border: "none", borderRadius: 8, fontSize: 10, fontWeight: 700, color: B.danger, cursor: "pointer", fontFamily: "inherit" }}>Del</button>
+            </div>
+          </div>))}
+          {data.referrals.length === 0 && <div style={{ textAlign: "center", padding: 30, color: B.dim }}>No referrals yet</div>}
+        </>}
+
+        {tab === "partners" && !loading && <>
+          <SH label="Partner applications" />
+          {data.partners.map((p, i) => card(<div key={i}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: 6 }}><div><div style={{ fontSize: 14, fontWeight: 700, color: B.charcoal }}>{p.business_name}</div><div style={{ fontSize: 11, color: B.dim }}>{p.tier} tier · {p.category}</div></div>{statusBadge(p.status)}</div>
+            {label("Contact")}{val(`${p.contact_name} · ${p.phone} · ${p.email}`)}{label("Website")}{val(p.website)}{label("Description")}{val(p.description)}{label("Brand color")}{val(p.brand_color)}{label("Logo initials")}{val(p.logo_initials)}
+            {p.deal && <>{label("Deal")}{val(p.deal)}</>}
+            {p.logo_url && <div style={{ marginBottom: 8 }}>{label("Logo")}<img src={p.logo_url} alt="" style={{ width: 60, height: 60, borderRadius: 10, objectFit: "cover" }} /></div>}
+            <div style={{ fontSize: 10, color: B.dim, marginBottom: 8 }}>{new Date(p.created_at).toLocaleDateString()}</div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button onClick={() => statusBtn("partner_applications", p.id, "approved")} style={{ flex: 1, padding: "7px", background: `${B.success}15`, border: `1px solid ${B.success}30`, borderRadius: 8, fontSize: 10, fontWeight: 700, color: B.success, cursor: "pointer", fontFamily: "inherit" }}>Approve</button>
+              <button onClick={() => statusBtn("partner_applications", p.id, "declined")} style={{ flex: 1, padding: "7px", background: `${B.danger}10`, border: `1px solid ${B.danger}30`, borderRadius: 8, fontSize: 10, fontWeight: 700, color: B.danger, cursor: "pointer", fontFamily: "inherit" }}>Decline</button>
+              <button onClick={() => deleteRow("partner_applications", p.id)} style={{ padding: "7px 10px", background: `${B.danger}10`, border: "none", borderRadius: 8, fontSize: 10, fontWeight: 700, color: B.danger, cursor: "pointer", fontFamily: "inherit" }}>Del</button>
+            </div>
+          </div>))}
+          {data.partners.length === 0 && <div style={{ textAlign: "center", padding: 30, color: B.dim }}>No applications yet</div>}
+        </>}
+
+        {tab === "events" && !loading && <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}><SH label="Events" /><button onClick={() => { setShowForm("event"); setForm({ is_hot: "false", is_free: "false" }); }} style={{ padding: "6px 14px", background: B.gold, border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>+ Add event</button></div>
+          {showForm === "event" && card(<div>
+            {inp("Event name", "name", "Big Hat Days")}{inp("Date display", "date_display", "Apr 25-27")}{inp("Sort date (YYYY-MM-DD)", "date_sort", "2026-04-25")}{inp("Area", "area", "Old Town Clovis")}{inp("Category", "category", "Festival")}{inp("Description", "description", "...")}
+            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+              <label style={{ fontSize: 11, color: B.slate }}><input type="checkbox" checked={form.is_hot === "true"} onChange={e => up("is_hot", e.target.checked ? "true" : "false")} /> Trending</label>
+              <label style={{ fontSize: 11, color: B.slate }}><input type="checkbox" checked={form.is_free === "true"} onChange={e => up("is_free", e.target.checked ? "true" : "false")} /> Free</label>
+            </div>
+            <div style={{ display: "flex", gap: 6 }}><button onClick={addEvent} style={{ flex: 1, padding: "9px", background: B.gold, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Save event</button><button onClick={() => setShowForm(null)} style={{ padding: "9px 14px", background: B.off, border: `1px solid ${B.brd}`, borderRadius: 8, fontSize: 12, color: B.slate, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button></div>
+          </div>, { border: `2px solid ${B.gold}` })}
+          {data.events.map((e, i) => card(<div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>{e.name}</div><div style={{ fontSize: 10, color: B.dim }}>{e.date_display} · {e.area} · {e.category}</div></div>
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              {e.is_hot && <Bdg color={B.danger}>HOT</Bdg>}
+              {e.is_free && <Bdg color={B.success}>FREE</Bdg>}
+              <button onClick={() => dbUpdate("events", e.id, { active: !e.active }).then(load)} style={{ padding: "4px 8px", background: e.active ? `${B.success}15` : `${B.dim}15`, border: "none", borderRadius: 6, fontSize: 9, fontWeight: 700, color: e.active ? B.success : B.dim, cursor: "pointer", fontFamily: "inherit" }}>{e.active ? "ON" : "OFF"}</button>
+              <button onClick={() => deleteRow("events", e.id)} style={{ padding: "4px 8px", background: `${B.danger}10`, border: "none", borderRadius: 6, fontSize: 9, fontWeight: 700, color: B.danger, cursor: "pointer", fontFamily: "inherit" }}>×</button>
+            </div>
+          </div>))}
+        </>}
+
+        {tab === "businesses" && !loading && <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}><SH label="Businesses" /><button onClick={() => { setShowForm("biz"); setForm({ brand_color: "#CEB08E", featured: "false" }); }} style={{ padding: "6px 14px", background: B.gold, border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>+ Add business</button></div>
+          {showForm === "biz" && card(<div>
+            {inp("Name", "name", "Ampersand Ice Cream")}{inp("Category", "category", "Dessert")}{inp("Area", "area", "Old Town Clovis")}{inp("Description", "description", "...")}{inp("Rating", "rating", "4.9")}{inp("Reviews count", "reviews_count", "312")}{inp("Tag", "tag", "Hidden Gem")}{inp("Brand color", "brand_color", "#CEB08E")}{inp("Logo initials", "logo_initials", "A&")}{inp("Deal (optional)", "deal", "10% off")}
+            <label style={{ fontSize: 11, color: B.slate, marginBottom: 10, display: "block" }}><input type="checkbox" checked={form.featured === "true"} onChange={e => up("featured", e.target.checked ? "true" : "false")} /> Featured partner</label>
+            <div style={{ display: "flex", gap: 6 }}><button onClick={addBiz} style={{ flex: 1, padding: "9px", background: B.gold, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Save business</button><button onClick={() => setShowForm(null)} style={{ padding: "9px 14px", background: B.off, border: `1px solid ${B.brd}`, borderRadius: 8, fontSize: 12, color: B.slate, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button></div>
+          </div>, { border: `2px solid ${B.gold}` })}
+          {data.businesses.map((b, i) => card(<div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>{b.name}</div><div style={{ fontSize: 10, color: B.dim }}>{b.area} · {b.category} · ★{b.rating}</div></div>
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              {b.featured && <Bdg color={B.gold}>FEATURED</Bdg>}
+              <button onClick={() => dbUpdate("businesses", b.id, { approved: !b.approved }).then(load)} style={{ padding: "4px 8px", background: b.approved ? `${B.success}15` : `${B.dim}15`, border: "none", borderRadius: 6, fontSize: 9, fontWeight: 700, color: b.approved ? B.success : B.dim, cursor: "pointer", fontFamily: "inherit" }}>{b.approved ? "LIVE" : "HIDDEN"}</button>
+              <button onClick={() => deleteRow("businesses", b.id)} style={{ padding: "4px 8px", background: `${B.danger}10`, border: "none", borderRadius: 6, fontSize: 9, fontWeight: 700, color: B.danger, cursor: "pointer", fontFamily: "inherit" }}>×</button>
+            </div>
+          </div>))}
+          {data.businesses.length === 0 && <div style={{ textAlign: "center", padding: 30, color: B.dim }}>No businesses yet</div>}
+        </>}
+
+        {tab === "vendors" && !loading && <>
+          <SH label="Vendors" />
+          {data.vendors.map((v, i) => card(<div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>{v.name}</div><div style={{ fontSize: 10, color: B.dim }}>{v.category} · {v.contact_name} · {v.phone}</div></div>
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              <button onClick={() => dbUpdate("vendors", v.id, { active: !v.active }).then(load)} style={{ padding: "4px 8px", background: v.active ? `${B.success}15` : `${B.dim}15`, border: "none", borderRadius: 6, fontSize: 9, fontWeight: 700, color: v.active ? B.success : B.dim, cursor: "pointer", fontFamily: "inherit" }}>{v.active ? "ON" : "OFF"}</button>
+              <button onClick={() => deleteRow("vendors", v.id)} style={{ padding: "4px 8px", background: `${B.danger}10`, border: "none", borderRadius: 6, fontSize: 9, fontWeight: 700, color: B.danger, cursor: "pointer", fontFamily: "inherit" }}>×</button>
+            </div>
+          </div>))}
+        </>}
+
+        {tab === "reviews" && !loading && <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}><SH label="Reviews" /><button onClick={() => { setShowForm("review"); setForm({ rating: "5", platform: "Google" }); }} style={{ padding: "6px 14px", background: B.gold, border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>+ Add review</button></div>
+          {showForm === "review" && card(<div>
+            {inp("Client name", "client_name", "Jane Smith")}{inp("Rating (1-5)", "rating", "5")}{inp("Platform", "platform", "Google")}{inp("Date display", "date_display", "2 days ago")}
+            <div style={{ marginBottom: 10 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 3 }}>Review text</label><textarea value={form.review_text || ""} onChange={e => up("review_text", e.target.value)} placeholder="What they said..." rows={4} style={{ width: "100%", padding: "9px 10px", border: `1px solid ${B.brd}`, borderRadius: 8, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none" }} /></div>
+            <div style={{ display: "flex", gap: 6 }}><button onClick={addReview} style={{ flex: 1, padding: "9px", background: B.gold, border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Save review</button><button onClick={() => setShowForm(null)} style={{ padding: "9px 14px", background: B.off, border: `1px solid ${B.brd}`, borderRadius: 8, fontSize: 12, color: B.slate, cursor: "pointer", fontFamily: "inherit" }}>Cancel</button></div>
+          </div>, { border: `2px solid ${B.gold}` })}
+          {data.reviews.map((r, i) => card(<div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+            <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 700, color: B.charcoal }}>{r.client_name}</div><div style={{ fontSize: 10, color: B.dim }}>{r.date_display} · {r.platform} · {"★".repeat(r.rating)}</div><div style={{ fontSize: 11, color: B.slate, marginTop: 4, lineHeight: 1.5 }}>{r.review_text?.slice(0, 120)}{r.review_text?.length > 120 ? "..." : ""}</div></div>
+            <button onClick={() => deleteRow("reviews", r.id)} style={{ padding: "4px 8px", background: `${B.danger}10`, border: "none", borderRadius: 6, fontSize: 9, fontWeight: 700, color: B.danger, cursor: "pointer", fontFamily: "inherit", flexShrink: 0, marginLeft: 8 }}>×</button>
+          </div>))}
+        </>}
+
+        {tab === "quiz" && !loading && <>
+          <SH label="Quiz responses" />
+          {data.quiz.map((q, i) => card(<div key={i}>
+            <div style={{ fontSize: 10, color: B.dim, marginBottom: 4 }}>{new Date(q.created_at).toLocaleDateString()} {new Date(q.created_at).toLocaleTimeString()}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: B.charcoal, marginBottom: 4 }}>Top match: {q.top_match || "—"}</div>
+            <div style={{ fontSize: 11, color: B.slate }}>Answers: {JSON.stringify(q.answers)}</div>
+            {q.other_answers && Object.keys(q.other_answers).length > 0 && <div style={{ fontSize: 11, color: B.gold, marginTop: 4 }}>Custom answers: {JSON.stringify(q.other_answers)}</div>}
+          </div>))}
+          {data.quiz.length === 0 && <div style={{ textAlign: "center", padding: 30, color: B.dim }}>No quiz responses yet</div>}
+        </>}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
-  const [scr, setScr] = useState("splash"); const [nav, setNav] = useState("home");
+  const [scr, setScr] = useState(() => { if (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("admin") === "1") return "admin"; return "splash"; });
+  const [nav, setNav] = useState("home");
   const [businesses, setBiz] = useState([]); const [events, setEv] = useState([]); const [vendors, setVen] = useState([]); const [reviews, setRev] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -273,13 +489,14 @@ export default function App() {
   }, []);
 
   const go = useCallback((id) => { if (["home", "explore", "events", "quiz", "connect"].includes(id)) setNav(id); setScr(id); }, []);
-  const showNav = !["splash", "referral", "partner"].includes(scr);
+  const showNav = !["splash", "referral", "partner", "admin"].includes(scr);
 
   return (
     <div style={{ minHeight: "100vh", maxWidth: 480, margin: "0 auto", fontFamily: "'DM Sans', sans-serif", "--hf": "'Playfair Display', serif", background: B.off, display: "flex", flexDirection: "column" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet" />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", minHeight: "100vh" }}>
         <div style={{ flex: 1, overflow: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none" }}>
+          {scr === "admin" && <Admin onExit={() => { setScr("splash"); window.history.replaceState({}, "", "/"); }} />}
           {scr === "splash" && <Splash go={go} />}
           {scr === "referral" && <ReferralPortal go={go} />}
           {scr === "partner" && <PartnerOnboard go={go} />}
