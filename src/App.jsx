@@ -210,13 +210,93 @@ function VendorTab({ vendors }) {
 }
 
 function SellerTab() {
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ first_name: "", last_name: "", phone: "", email: "", property_address: "", city: "Fresno", zip: "", property_type: "", bedrooms: "", bathrooms: "", timeline: "", reason: "", moving_to: "", condition: "", mortgage_owed: "", notes: "" });
+  const [step, setStep] = useState(0);
+  const [sent, setSent] = useState(false); const [sending, setSending] = useState(false);
+  const up = (k, v) => setForm(f => ({ ...f, [k]: v }));
+
+  const submit = async () => {
+    setSending(true);
+    await dbInsert("seller_inquiries", { ...form, status: "new" });
+    await sendEmail("🏡 New Seller Inquiry on The Spot", `New seller inquiry!\n\nName: ${form.first_name} ${form.last_name}\nPhone: ${form.phone}\nEmail: ${form.email}\n\nProperty: ${form.property_address}, ${form.city} ${form.zip}\nType: ${form.property_type}\nBed/Bath: ${form.bedrooms}bd / ${form.bathrooms}ba\n\nTimeline: ${form.timeline}\nReason for selling: ${form.reason}\nMoving to: ${form.moving_to}\nCondition: ${form.condition}\nMortgage owed: ${form.mortgage_owed}\nNotes: ${form.notes}\n\nView in admin: thespotfresno.com?admin=1`);
+    setSent(true); setSending(false);
+  };
+
+  if (sent) return (<div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, textAlign: "center", minHeight: 400 }}>
+    <div style={{ fontSize: 48, marginBottom: 16 }}>🏡</div>
+    <div style={{ fontFamily: "var(--hf)", fontSize: 22, fontWeight: 700, color: B.charcoal, marginBottom: 8 }}>Request received!</div>
+    <div style={{ fontSize: 13, color: B.slate, lineHeight: 1.6, marginBottom: 16 }}>Chris will review your property details and reach out within 24 hours with a personalized market analysis.</div>
+    <CallBtn full />
+  </div>);
+
+  const formSteps = [
+    () => (<div>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 1 OF 3 · ABOUT YOU</div>
+      {[["First name", "first_name", "Chris"], ["Last name", "last_name", "Patterson"], ["Phone", "phone", "(559) 555-5555"], ["Email", "email", "you@email.com"]].map(([l, k, ph]) => (
+        <div key={k} style={{ marginBottom: 10 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 3 }}>{l}</label><input value={form[k]} onChange={e => up(k, e.target.value)} placeholder={ph} style={{ width: "100%", padding: "11px 12px", border: `1px solid ${B.brd}`, borderRadius: 10, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box", background: B.white }} /></div>
+      ))}
+    </div>),
+    () => (<div>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 2 OF 3 · YOUR PROPERTY</div>
+      <div style={{ marginBottom: 10 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 3 }}>Property address</label><input value={form.property_address} onChange={e => up("property_address", e.target.value)} placeholder="123 Main St" style={{ width: "100%", padding: "11px 12px", border: `1px solid ${B.brd}`, borderRadius: 10, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box", background: B.white }} /></div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+        <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 3 }}>City</label><div style={{ display: "flex", gap: 6 }}>{["Fresno", "Clovis", "Madera", "Other"].map(c => (<button key={c} onClick={() => up("city", c)} style={{ flex: 1, padding: "9px 4px", borderRadius: 8, border: `1px solid ${form.city === c ? B.gold : B.brd}`, background: form.city === c ? `${B.gold}15` : B.white, fontSize: 10, fontWeight: form.city === c ? 700 : 400, color: form.city === c ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit" }}>{c}</button>))}</div></div>
+      </div>
+      <div style={{ marginBottom: 10 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 3 }}>Zip code</label><input value={form.zip} onChange={e => up("zip", e.target.value)} placeholder="93720" style={{ width: "50%", padding: "11px 12px", border: `1px solid ${B.brd}`, borderRadius: 10, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box", background: B.white }} /></div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 6 }}>Property type</label>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>{["Single family", "Condo/Townhome", "Multi-family", "Land/Lot", "Mobile home"].map(t => (
+        <button key={t} onClick={() => up("property_type", t)} style={{ padding: "8px 14px", borderRadius: 8, border: `1px solid ${form.property_type === t ? B.gold : B.brd}`, background: form.property_type === t ? `${B.gold}15` : B.white, fontSize: 11, fontWeight: form.property_type === t ? 700 : 400, color: form.property_type === t ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 6 }}>Bedrooms</label><div style={{ display: "flex", gap: 4 }}>{["1", "2", "3", "4", "5+"].map(t => (<button key={t} onClick={() => up("bedrooms", t)} style={{ flex: 1, padding: "10px 4px", borderRadius: 8, border: `1px solid ${form.bedrooms === t ? B.gold : B.brd}`, background: form.bedrooms === t ? `${B.gold}15` : B.white, fontSize: 12, fontWeight: form.bedrooms === t ? 700 : 400, color: form.bedrooms === t ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>))}</div></div>
+        <div style={{ flex: 1 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 6 }}>Bathrooms</label><div style={{ display: "flex", gap: 4 }}>{["1", "1.5", "2", "3", "4+"].map(t => (<button key={t} onClick={() => up("bathrooms", t)} style={{ flex: 1, padding: "10px 4px", borderRadius: 8, border: `1px solid ${form.bathrooms === t ? B.gold : B.brd}`, background: form.bathrooms === t ? `${B.gold}15` : B.white, fontSize: 12, fontWeight: form.bathrooms === t ? 700 : 400, color: form.bathrooms === t ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>))}</div></div>
+      </div>
+    </div>),
+    () => (<div>
+      <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>STEP 3 OF 3 · YOUR PLANS</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 6 }}>When are you looking to sell?</label>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>{["ASAP", "1-3 months", "3-6 months", "6-12 months", "Just exploring"].map(t => (
+        <button key={t} onClick={() => up("timeline", t)} style={{ padding: "9px 14px", borderRadius: 8, border: `1px solid ${form.timeline === t ? B.gold : B.brd}`, background: form.timeline === t ? `${B.gold}15` : B.white, fontSize: 11, fontWeight: form.timeline === t ? 700 : 400, color: form.timeline === t ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 6 }}>Reason for selling</label>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>{["Upgrading", "Downsizing", "Relocating", "Investment", "Life change", "Other"].map(t => (
+        <button key={t} onClick={() => up("reason", t)} style={{ padding: "9px 14px", borderRadius: 8, border: `1px solid ${form.reason === t ? B.gold : B.brd}`, background: form.reason === t ? `${B.gold}15` : B.white, fontSize: 11, fontWeight: form.reason === t ? 700 : 400, color: form.reason === t ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+      <div style={{ marginBottom: 10 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 3 }}>Where are you moving to? (if applicable)</label><input value={form.moving_to} onChange={e => up("moving_to", e.target.value)} placeholder="Staying local, out of state, not sure yet..." style={{ width: "100%", padding: "11px 12px", border: `1px solid ${B.brd}`, borderRadius: 10, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box", background: B.white }} /></div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 6 }}>Home condition</label>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>{["Move-in ready", "Needs minor updates", "Needs work", "Major renovation needed"].map(t => (
+        <button key={t} onClick={() => up("condition", t)} style={{ padding: "9px 14px", borderRadius: 8, border: `1px solid ${form.condition === t ? B.gold : B.brd}`, background: form.condition === t ? `${B.gold}15` : B.white, fontSize: 11, fontWeight: form.condition === t ? 700 : 400, color: form.condition === t ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+      <label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 6 }}>Approximate mortgage balance owed</label>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>{["Paid off", "Under $100K", "$100K-$250K", "$250K-$400K", "$400K+", "Prefer not to say"].map(t => (
+        <button key={t} onClick={() => up("mortgage_owed", t)} style={{ padding: "9px 14px", borderRadius: 8, border: `1px solid ${form.mortgage_owed === t ? B.gold : B.brd}`, background: form.mortgage_owed === t ? `${B.gold}15` : B.white, fontSize: 11, fontWeight: form.mortgage_owed === t ? 700 : 400, color: form.mortgage_owed === t ? B.gold : B.slate, cursor: "pointer", fontFamily: "inherit" }}>{t}</button>
+      ))}</div>
+      <div style={{ marginBottom: 10 }}><label style={{ display: "block", fontSize: 10, fontWeight: 700, color: B.slate, marginBottom: 3 }}>Anything else Chris should know?</label><textarea value={form.notes} onChange={e => up("notes", e.target.value)} placeholder="Special circumstances, goals, questions..." rows={3} style={{ width: "100%", padding: "11px 12px", border: `1px solid ${B.brd}`, borderRadius: 10, fontSize: 13, fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none", background: B.white }} /></div>
+    </div>),
+  ];
+
   return (<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
     <div style={{ background: `linear-gradient(145deg, ${B.black}, #1a1c2e)`, borderRadius: 18, padding: 22, color: B.white }}>
       <div style={{ fontSize: 10, color: B.gold, fontWeight: 700, letterSpacing: 3, textTransform: "uppercase", marginBottom: 6 }}>THINKING OF SELLING?</div>
       <div style={{ fontFamily: "var(--hf)", fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Get top dollar for your home</div>
       <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", lineHeight: 1.7, marginBottom: 14 }}>Chris Patterson and the Trafton Home Team combine professional marketing, social media exposure, and deep local knowledge to sell your home faster and for more.</div>
-      <div style={{ display: "flex", gap: 8 }}><CallBtn full style={{ flex: 1, justifyContent: "center" }} /><TextBtn style={{ flex: 1, justifyContent: "center" }} /></div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <button onClick={() => setShowForm(true)} style={{ flex: 1, padding: "12px", background: B.gold, border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Get a free home valuation</button>
+        <CallBtn full style={{ flex: 1, justifyContent: "center" }} />
+      </div>
     </div>
+
+    {showForm && <div style={{ background: B.white, borderRadius: 16, padding: 18, border: `2px solid ${B.gold}` }}>
+      <div style={{ display: "flex", gap: 3, marginBottom: 16 }}>{formSteps.map((_, i) => <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: i <= step ? B.gold : B.brd }} />)}</div>
+      {formSteps[step]()}
+      <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+        {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ flex: 1, padding: "12px", background: B.off, border: `1px solid ${B.brd}`, borderRadius: 10, fontSize: 13, fontWeight: 600, color: B.slate, cursor: "pointer", fontFamily: "inherit" }}>← Back</button>}
+        {step < formSteps.length - 1 && <button onClick={() => setStep(s => s + 1)} style={{ flex: 2, padding: "12px", background: B.gold, border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>Next →</button>}
+        {step === formSteps.length - 1 && <button onClick={submit} disabled={sending} style={{ flex: 2, padding: "12px", background: sending ? B.slate : B.gold, border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, color: B.black, cursor: "pointer", fontFamily: "inherit" }}>{sending ? "Submitting..." : "Request free valuation"}</button>}
+      </div>
+    </div>}
+
     <SH label="Your home's marketing plan" />
     {[
       { em: "📸", t: "Professional photography & videography", d: "High-quality photos and cinematic video tours that make your home stand out" },
