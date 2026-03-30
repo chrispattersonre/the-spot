@@ -296,7 +296,7 @@ const st={ck:d.an.filter(a=>a.event_type==="checkin").length,rd:d.an.filter(a=>a
 const tabs=[{id:"overview",l:"Overview"},{id:"geocode",l:"📍 Map"},{id:"ref",l:`Ref (${d.ref.length})`},{id:"par",l:`Apps (${d.par.length})`},{id:"ev",l:`Events (${d.ev.length})`},{id:"biz",l:`Biz (${d.biz.length})`},{id:"qz",l:`Quiz (${d.qz.length})`}];
 return <div style={{background:C.sl,minHeight:"100%",paddingBottom:80}}><div style={{background:C.bg,padding:"10px 16px 12px"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{fontSize:15,fontWeight:700,color:C.text}}>Admin Dashboard</div><Btn small onClick={load} color={C.surface} tc={C.text}>↻ Refresh</Btn></div><div style={{display:"flex",gap:4,overflowX:"auto",scrollbarWidth:"none"}}>{tabs.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"5px 10px",borderRadius:16,border:"none",fontSize:10,fontWeight:tab===t.id?700:400,background:tab===t.id?C.gold:C.surface,color:tab===t.id?C.bg:C.td,cursor:"pointer",fontFamily:FN,whiteSpace:"nowrap"}}>{t.l}</button>)}</div></div>
 <div style={{padding:"12px 14px 40px"}}>{ld&&<div style={{textAlign:"center",padding:40,color:C.dd}}>Loading...</div>}
-{tab==="overview"&&!ld&&<div><div style={{fontFamily:FD,fontSize:18,fontWeight:700,color:C.dk,marginBottom:14}}>Sourced by The Spot</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>{[{v:st.ck,l:"Check-ins",c:C.green},{v:st.rd,l:"Redemptions",c:C.red},{v:st.vw,l:"Views",c:C.blue},{v:st.cl,l:"Clicks",c:C.gold}].map((s,i)=><div key={i} style={{background:C.white,borderRadius:14,padding:16,border:`1px solid ${C.bl}`,textAlign:"center"}}><div style={{fontSize:28,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:11,color:C.dd,marginTop:2}}>{s.l}</div></div>)}</div>
+{tab==="overview"&&!ld&&<div><div style={{fontFamily:FD,fontSize:18,fontWeight:700,color:C.dk,marginBottom:14}}>Spot Impact</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>{[{v:st.ck,l:"Check-ins",c:C.green},{v:st.rd,l:"Redemptions",c:C.red},{v:st.vw,l:"Views",c:C.blue},{v:st.cl,l:"Clicks",c:C.gold}].map((s,i)=><div key={i} style={{background:C.white,borderRadius:14,padding:16,border:`1px solid ${C.bl}`,textAlign:"center"}}><div style={{fontSize:28,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:11,color:C.dd,marginTop:2}}>{s.l}</div></div>)}</div>
 <div style={{background:C.white,borderRadius:14,padding:16,border:`1px solid ${C.bl}`,marginBottom:14}}>
 <div style={{fontSize:13,color:C.dd,lineHeight:2}}>Businesses: {d.biz.filter(b=>b.approved).length} active<br/>Partners: {d.biz.filter(b=>b.tier&&b.tier!=="free").length} paying<br/>On map: {d.biz.filter(b=>b.latitude).length} / {d.biz.length} have coordinates<br/>Events: {d.ev.filter(e=>e.active).length}<br/>Referrals: {d.ref.length}<br/>Quiz: {d.qz.length}</div>
 </div>
@@ -389,8 +389,6 @@ function PartnerPortal({goBack}){
   const phoneClicks=analytics.filter(a=>a.event_type==="click_phone").length;
   const checkins=analytics.filter(a=>a.event_type==="checkin").length;
   const redeems=analytics.filter(a=>a.event_type==="deal_redeem").length;
-  const avgTicket=biz.avg_ticket_price||25;
-  const estRevenue=checkins*avgTicket;
   const color=biz.brand_color||C.gold;
 
   return <div style={{minHeight:"100vh",background:C.sl}}>
@@ -405,15 +403,10 @@ function PartnerPortal({goBack}){
       </div>
     </div>
     <div style={{padding:14}}>
-      <div style={{background:`linear-gradient(135deg,${C.green}10,${C.gold}08)`,borderRadius:16,padding:18,marginBottom:14,textAlign:"center",border:`1px solid ${C.green}20`}}>
-        <div style={{fontSize:10,fontWeight:700,color:C.green,letterSpacing:2}}>SOURCED BY THE SPOT</div>
-        <div style={{fontSize:10,color:C.dd,marginTop:2,marginBottom:8}}>Estimated revenue driven to your business</div>
-        <div style={{fontSize:36,fontWeight:800,color:C.green}}>${estRevenue.toLocaleString()}</div>
-        <div style={{fontSize:12,color:C.dd,marginTop:2}}>based on {checkins} check-ins × ${avgTicket} avg ticket</div>
-        {biz.tier&&<div style={{marginTop:8,fontSize:11,color:C.gold,fontWeight:600}}>Your ${biz.tier==="spotlight"?"99":biz.tier==="featured"?"199":"299"}/mo → {checkins>0?Math.round(estRevenue/(biz.tier==="spotlight"?99:biz.tier==="featured"?199:299))+"x":"calculating..."} ROI</div>}
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:14}}>
-        {[{v:views,l:"Listing views",c:C.blue,sub:"People who discovered you"},{v:clicks,l:"Total clicks",c:C.gold,sub:`${webClicks} website · ${phoneClicks} calls`},{v:checkins,l:"Check-ins",c:C.green,sub:"Verified visits via The Spot"},{v:redeems,l:"Deal redemptions",c:C.red,sub:"Deals used at your business"}].map((s,i)=>
+      <div style={{background:`linear-gradient(135deg,${color}10,${C.gold}08)`,borderRadius:16,padding:18,marginBottom:14,border:`1px solid ${color}20`}}>
+        <div style={{fontSize:10,fontWeight:700,color:color,letterSpacing:2,marginBottom:12}}>YOUR SPOT IMPACT</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+          {[{v:views,l:"Listing views",c:C.blue,sub:"People who discovered you"},{v:clicks,l:"Total clicks",c:C.gold,sub:`${webClicks} website · ${phoneClicks} calls`},{v:checkins,l:"Check-ins",c:C.green,sub:"Verified visits via The Spot"},{v:redeems,l:"Deal redemptions",c:C.red,sub:"Deals used at your business"}].map((s,i)=>
           <div key={i} style={{background:C.white,borderRadius:14,padding:14,border:`1px solid ${C.bl}`}}>
             <div style={{fontSize:28,fontWeight:800,color:s.c}}>{s.v}</div>
             <div style={{fontSize:11,fontWeight:700,color:C.dk,marginTop:2}}>{s.l}</div>
