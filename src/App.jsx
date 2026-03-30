@@ -119,7 +119,7 @@ function useGoogleMaps(){
 }
 
 const PIN_COLORS={Restaurant:"#CEB08E",Coffee:"#8B6F47",Dessert:"#E8593C",Fitness:"#5CAA6E",Brunch:"#E8A040",Shopping:"#9B6ED4",Nightlife:"#7CA6E9",Wellness:"#D4736E",Golf:"#2D6A4F",Services:"#6B7280"};
-const FRESNO_CENTER={lat:36.7378,lng:-119.7871};
+const FRESNO_CENTER={lat:36.8000,lng:-119.7600};
 
 function SpotMap({businesses,onSelect,onPinTap,selectedCat}){
   const mapRef=useRef(null);const mapInstance=useRef(null);const markers=useRef([]);const activeMarker=useRef(null);
@@ -131,7 +131,7 @@ function SpotMap({businesses,onSelect,onPinTap,selectedCat}){
     const init=()=>{
     if(!mapInstance.current){
       mapInstance.current=new window.google.maps.Map(mapRef.current,{
-        center:FRESNO_CENTER,zoom:12,
+        center:FRESNO_CENTER,zoom:10,
         styles:[{featureType:"poi",stylers:[{visibility:"off"}]},{featureType:"transit",stylers:[{visibility:"off"}]},{featureType:"all",elementType:"labels.text.fill",stylers:[{color:"#666666"}]},{featureType:"water",elementType:"geometry.fill",stylers:[{color:"#e8f0f8"}]}],
         mapTypeControl:false,streetViewControl:false,fullscreenControl:false,
         zoomControlOptions:{position:window.google.maps.ControlPosition.RIGHT_CENTER}
