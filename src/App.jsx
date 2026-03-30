@@ -408,6 +408,7 @@ function PartnerPortal({goBack}){
           </div>
         )}
       </div>
+      </div>
 
       {biz.deal && <div style={{background:C.white,borderRadius:14,padding:14,border:`1px solid ${C.bl}`,marginBottom:14}}>
         <div style={{fontSize:10,fontWeight:700,color:C.dd,letterSpacing:2,marginBottom:6}}>YOUR ACTIVE DEAL</div>
