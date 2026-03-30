@@ -475,6 +475,173 @@ const steps=[
 ];
 return <div style={{minHeight:"100vh",background:`linear-gradient(170deg,${C.bg},${C.card})`,padding:"20px 18px 40px"}}><BackBtn onClick={goBack}/><div style={{display:"flex",gap:3,marginBottom:24}}>{steps.map((_,i)=><div key={i} style={{flex:1,height:3,borderRadius:2,background:i<=step?C.gold:"rgba(255,255,255,0.08)"}}/>)}</div>{steps[step]}<div style={{display:"flex",gap:10,marginTop:24}}>{step>0&&<Btn outline onClick={()=>setStep(s=>s-1)} s={{flex:1}} color={C.tm}>Back</Btn>}{step<4&&<Btn onClick={()=>setStep(s=>s+1)} s={{flex:2}}>Next</Btn>}{step===4&&<Btn onClick={sub} disabled={ld} s={{flex:2}}>{ld?"...":"Submit"}</Btn>}</div></div>}
 
+function EventsAdmin({events,onReload}){
+  const[mode,setMode]=useState("list");
+  const[aiEvents,setAiEvents]=useState([]);
+  const[aiLoading,setAiLoading]=useState(false);
+  const[aiError,setAiError]=useState("");
+  const[adding,setAdding]=useState(null);
+  const[f,setF]=useState({});
+  const up=(k,v)=>setF(p=>({...p,[k]:v}));
+
+  const findEvents=async()=>{
+    setAiLoading(true);setAiError("");setAiEvents([]);
+    try{
+      const existingNames=events.map(e=>(e.name||"").toLowerCase());
+      const today=new Date().toISOString().split("T")[0];
+      const r=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-20250514",max_tokens:4000,
+          tools:[{type:"web_search_20250305",name:"web_search"}],
+          messages:[{role:"user",content:`Today is ${today}. Search for upcoming events in Fresno, Clovis, Madera, and the surrounding Central Valley area in the next 60 days. Look for festivals, concerts, farmers markets, food events, community events, sports, art shows, and anything fun.
+
+Search multiple queries: "Fresno events ${new Date().toLocaleString('default',{month:'long',year:'numeric'})}", "Clovis events upcoming", "Fresno festivals 2026", "Central Valley events this month", "Tower District events".
+
+Return ONLY a JSON array (no markdown, no backticks, no explanation) of event objects with these fields:
+- name (string)
+- category (one of: Festival, Music, Sports, Food, Arts, Market, Community, Nightlife)
+- area (specific area like "Old Town Clovis", "Tower District", "Downtown Fresno", "Woodward Park", "River Park", "Madera")
+- date_display (human readable like "Apr 25-27" or "Every Sat")
+- date_sort (YYYY-MM-DD format, use the first date if a range)
+- description (1-2 sentences, compelling)
+- is_hot (boolean, true if it's a major/popular event)
+- is_free (boolean)
+- link (URL to event page or ticket site, or null if not found)
+
+Find at least 8-12 events. Skip any that seem to have already passed. Only return the JSON array.`}]
+        })
+      });
+      const data=await r.json();
+      const textBlocks=data.content?.filter(b=>b.type==="text").map(b=>b.text).join("") || "";
+      const cleaned=textBlocks.replace(/```json|```/g,"").trim();
+      let parsed=[];
+      try{parsed=JSON.parse(cleaned)}catch{
+        const match=cleaned.match(/\[[\s\S]*\]/);
+        if(match)try{parsed=JSON.parse(match[0])}catch{}
+      }
+      const filtered=parsed.filter(e=>e.name&&!existingNames.includes((e.name||"").toLowerCase()));
+      if(filtered.length===0){setAiError("No new events found. Try again later or add manually.")}
+      setAiEvents(filtered);
+    }catch(err){
+      console.error("AI event search error:",err);
+      setAiError("Search failed. Check connection and try again.");
+    }
+    setAiLoading(false);
+  };
+
+  const approveEvent=async(ev)=>{
+    setAdding(ev.name);
+    await db.ins("events",{
+      name:ev.name,category:ev.category||"Community",area:ev.area||"Fresno",
+      date_display:ev.date_display,date_sort:ev.date_sort||null,
+      description:ev.description||"",is_hot:!!ev.is_hot,is_free:!!ev.is_free,
+      link:ev.link||null,active:true
+    });
+    setAiEvents(p=>p.filter(e=>e.name!==ev.name));
+    setAdding(null);
+    onReload();
+  };
+
+  const quickSave=async()=>{
+    await db.ins("events",{...f,is_hot:f.is_hot==="true",is_free:f.is_free==="true",active:true});
+    setF({});setMode("list");onReload();
+  };
+
+  return <div>
+    <div style={{display:"flex",gap:6,marginBottom:12}}>
+      <Btn small onClick={()=>setMode("list")} color={mode==="list"?C.gold:`${C.dd}15`} tc={mode==="list"?C.bg:C.dd}>Events ({events.length})</Btn>
+      <Btn small onClick={()=>setMode("ai")} color={mode==="ai"?C.blue:`${C.dd}15`} tc={mode==="ai"?C.white:C.dd}>AI Finder</Btn>
+      <Btn small onClick={()=>{setMode("add");setF({})}} color={mode==="add"?C.green:`${C.dd}15`} tc={mode==="add"?C.white:C.dd}>+ Quick Add</Btn>
+    </div>
+
+    {mode==="ai"&&<div>
+      <div style={{background:`linear-gradient(135deg,${C.blue}08,${C.purple}06)`,borderRadius:14,padding:16,border:`1px solid ${C.blue}20`,marginBottom:12}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+          <div style={{width:32,height:32,borderRadius:10,background:`${C.blue}20`,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic d={ic.search} size={16} color={C.blue}/></div>
+          <div><div style={{fontSize:13,fontWeight:700,color:C.dk}}>AI Event Finder</div><div style={{fontSize:10,color:C.dd}}>Searches the web for Fresno/Clovis events</div></div>
+        </div>
+        <div style={{fontSize:11,color:"#6B6B78",lineHeight:1.6,marginBottom:10}}>Scans multiple sources for upcoming events in the next 60 days. Review each result and approve the ones you want on The Spot. Already-listed events are automatically filtered out.</div>
+        <Btn full onClick={findEvents} disabled={aiLoading} color={C.blue} tc={C.white}>{aiLoading?"Searching the web...":"Find upcoming events"}</Btn>
+      </div>
+
+      {aiLoading&&<div style={{textAlign:"center",padding:20}}>
+        <div style={{fontSize:12,color:C.dd,marginBottom:8}}>Searching Fresno, Clovis, Tower District, Madera...</div>
+        <div style={{width:"100%",height:3,borderRadius:2,background:C.bl,overflow:"hidden"}}><div style={{width:"60%",height:"100%",background:C.blue,borderRadius:2,animation:"aiPulse 1.5s ease-in-out infinite"}}></div></div>
+        <style>{`@keyframes aiPulse{0%{width:20%}50%{width:80%}100%{width:20%}}`}</style>
+      </div>}
+
+      {aiError&&<div style={{padding:"10px 14px",borderRadius:10,background:`${C.red}10`,fontSize:12,color:C.red,marginBottom:10}}>{aiError}</div>}
+
+      {aiEvents.length>0&&<div>
+        <div style={{fontSize:10,fontWeight:700,color:C.green,letterSpacing:2,marginBottom:8}}>FOUND {aiEvents.length} NEW EVENTS</div>
+        {aiEvents.map((ev,i)=><div key={i} style={{background:C.white,borderRadius:14,padding:14,marginBottom:8,border:`1px solid ${C.bl}`}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"start",marginBottom:6}}>
+            <div style={{flex:1}}>
+              <div style={{fontSize:14,fontWeight:700,color:C.dk}}>{ev.name}</div>
+              <div style={{fontSize:11,color:C.dd,marginTop:2}}>{ev.date_display} · {ev.area} · {ev.category}</div>
+            </div>
+            <div style={{display:"flex",gap:4,flexShrink:0,marginLeft:8}}>
+              {ev.is_hot&&<Badge color={C.red}>HOT</Badge>}
+              {ev.is_free&&<Badge color={C.green}>FREE</Badge>}
+            </div>
+          </div>
+          {ev.description&&<div style={{fontSize:12,color:"#6B6B78",lineHeight:1.5,marginBottom:8}}>{ev.description}</div>}
+          {ev.link&&<div style={{fontSize:10,color:C.blue,marginBottom:8,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ev.link}</div>}
+          <div style={{display:"flex",gap:6}}>
+            <Btn small onClick={()=>approveEvent(ev)} disabled={adding===ev.name} color={C.green} tc={C.white}>{adding===ev.name?"Adding...":"Approve"}</Btn>
+            <Btn small onClick={()=>setAiEvents(p=>p.filter(e=>e.name!==ev.name))} outline color={C.dd}>Skip</Btn>
+            <Btn small onClick={()=>{setF({name:ev.name,date_display:ev.date_display,date_sort:ev.date_sort,area:ev.area,category:ev.category,description:ev.description,link:ev.link,is_hot:ev.is_hot?"true":"",is_free:ev.is_free?"true":""});setMode("add")}} outline color={C.blue}>Edit first</Btn>
+          </div>
+        </div>)}
+        <Btn full small onClick={async()=>{for(const ev of aiEvents){await approveEvent(ev);await new Promise(r=>setTimeout(r,200))}}} color={C.gold} tc={C.bg} s={{marginTop:4}}>Approve all {aiEvents.length} events</Btn>
+      </div>}
+    </div>}
+
+    {mode==="add"&&<div style={{background:C.white,borderRadius:14,padding:14,border:`2px solid ${C.gold}`,marginBottom:12}}>
+      <div style={{fontSize:10,fontWeight:700,color:C.gold,letterSpacing:2,marginBottom:10}}>QUICK ADD EVENT</div>
+      <Inp label="Event name" value={f.name||""} onChange={v=>up("name",v)} placeholder="Big Hat Days"/>
+      <div style={{display:"flex",gap:8}}>
+        <Inp label="Display date" value={f.date_display||""} onChange={v=>up("date_display",v)} placeholder="Apr 25-27" style={{flex:1}}/>
+        <Inp label="Sort date" value={f.date_sort||""} onChange={v=>up("date_sort",v)} placeholder="2026-04-25" style={{flex:1}}/>
+      </div>
+      <div style={{display:"flex",gap:8}}>
+        <Inp label="Area" value={f.area||""} onChange={v=>up("area",v)} placeholder="Old Town Clovis" style={{flex:1}}/>
+        <Inp label="Category" value={f.category||""} onChange={v=>up("category",v)} placeholder="Festival" style={{flex:1}}/>
+      </div>
+      <Inp label="Link (event page or tickets)" value={f.link||""} onChange={v=>up("link",v)} placeholder="https://bighatdays.com"/>
+      <Inp label="Description" value={f.description||""} onChange={v=>up("description",v)} placeholder="What's this event about?" textarea/>
+      <div style={{display:"flex",gap:12,marginBottom:12}}>
+        <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer"}} onClick={()=>up("is_hot",f.is_hot==="true"?"":"true")}><div style={{width:20,height:20,borderRadius:6,border:`2px solid ${f.is_hot==="true"?C.red:C.bl}`,background:f.is_hot==="true"?`${C.red}15`:"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>{f.is_hot==="true"&&<Ic d={ic.check} size={12} color={C.red} sw={3}/>}</div><span style={{fontSize:11,fontWeight:600,color:C.dk}}>Trending</span></label>
+        <label style={{display:"flex",alignItems:"center",gap:6,cursor:"pointer"}} onClick={()=>up("is_free",f.is_free==="true"?"":"true")}><div style={{width:20,height:20,borderRadius:6,border:`2px solid ${f.is_free==="true"?C.green:C.bl}`,background:f.is_free==="true"?`${C.green}15`:"transparent",display:"flex",alignItems:"center",justifyContent:"center"}}>{f.is_free==="true"&&<Ic d={ic.check} size={12} color={C.green} sw={3}/>}</div><span style={{fontSize:11,fontWeight:600,color:C.dk}}>Free event</span></label>
+      </div>
+      <div style={{display:"flex",gap:6}}>
+        <Btn small onClick={quickSave} disabled={!f.name} color={C.gold} tc={C.bg}>Save event</Btn>
+        <Btn small outline onClick={()=>{setF({});setMode("list")}} color={C.dd}>Cancel</Btn>
+      </div>
+    </div>}
+
+    {mode==="list"&&<div>
+      <div style={{fontSize:10,fontWeight:700,color:C.dd,letterSpacing:2,marginBottom:8}}>{events.filter(e=>e.active).length} ACTIVE · {events.filter(e=>!e.active).length} INACTIVE</div>
+      {events.map((e,i)=><div key={i} style={{background:C.white,borderRadius:12,padding:12,marginBottom:6,border:`1px solid ${C.bl}`}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"start"}}>
+          <div style={{flex:1}}>
+            <div style={{fontSize:13,fontWeight:700,color:C.dk}}>{e.name}</div>
+            <div style={{fontSize:10,color:C.dd}}>{e.date_display} · {e.area}{e.category?" · "+e.category:""}</div>
+            {e.link&&<div style={{fontSize:9,color:C.blue,marginTop:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:200}}>{e.link}</div>}
+          </div>
+          <div style={{display:"flex",gap:4,flexShrink:0,marginLeft:8}}>
+            {e.is_hot&&<Badge color={C.red}>🔥</Badge>}
+            {e.is_free&&<Badge color={C.green}>FREE</Badge>}
+            <Btn small onClick={()=>{db.upd("events",e.id,{active:!e.active});onReload()}} color={e.active?`${C.green}15`:`${C.dd}15`} tc={e.active?C.green:C.dd}>{e.active?"ON":"OFF"}</Btn>
+            <Btn small onClick={()=>{if(confirm("Delete?"))db.del("events",e.id).then(onReload)}} color={`${C.red}10`} tc={C.red}>×</Btn>
+          </div>
+        </div>
+      </div>)}
+    </div>}
+  </div>;
+}
+
 function AdminDash(){const[pw,setPw]=useState("");const[auth,setAuth]=useState(false);const[tab,setTab]=useState("overview");const[d,setD]=useState({ref:[],par:[],ev:[],biz:[],rev:[],qz:[],an:[]});const[ld,setLd]=useState(false);const[sf,setSf]=useState(null);const[f,setF]=useState({});const up=(k,v)=>setF(p=>({...p,[k]:v}));
 const load=async()=>{setLd(true);const[ref,par,ev,biz,rev,qz,an]=await Promise.all([db.get("referrals","order=created_at.desc"),db.get("partner_applications","order=created_at.desc"),db.get("events","order=date_sort.asc"),db.get("businesses","order=created_at.desc"),db.get("reviews","order=created_at.desc"),db.get("quiz_responses","order=created_at.desc"),db.get("analytics_events","order=timestamp.desc&limit=1000")]);setD({ref,par,ev,biz,rev,qz,an});setLd(false)};
 useEffect(()=>{if(auth)load()},[auth]);
@@ -521,7 +688,7 @@ return <div style={{background:C.sl,minHeight:"100%",paddingBottom:80}}><div sty
 </div>)}
 </div>}
 {tab==="ref"&&!ld&&d.ref.map((r,i)=><div key={i} style={{background:C.white,borderRadius:14,padding:14,marginBottom:8,border:`1px solid ${C.bl}`}}><div style={{fontSize:15,fontWeight:700,color:C.dk}}>{r.agent_name}</div><div style={{fontSize:11,color:C.dd,lineHeight:1.8}}>{r.brokerage} · {r.agent_phone}{r.license_number?` · Lic: ${r.license_number}`:""}<br/>Client: {r.client_name} · {r.client_phone}<br/>Timeline: {r.timeline}</div><div style={{display:"flex",gap:6,marginTop:8}}><Btn small onClick={()=>{db.upd("referrals",r.id,{status:"contacted"});load()}} color={C.gd} tc={C.gold}>Contacted</Btn><Btn small onClick={()=>{db.upd("referrals",r.id,{status:"closed"});load()}} color={`${C.green}15`} tc={C.green}>Closed</Btn></div></div>)}
-{tab==="ev"&&!ld&&<><div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><SL>Events</SL><Btn small onClick={()=>{setSf("ev");setF({})}}>+ Add</Btn></div>{sf==="ev"&&<div style={{background:C.white,borderRadius:14,padding:14,marginBottom:12,border:`2px solid ${C.gold}`}}><Inp label="Name" value={f.name||""} onChange={v=>up("name",v)} placeholder="Big Hat Days"/><Inp label="Date" value={f.date_display||""} onChange={v=>up("date_display",v)} placeholder="Apr 25-27"/><Inp label="Sort date" value={f.date_sort||""} onChange={v=>up("date_sort",v)} placeholder="2026-04-25"/><Inp label="Area" value={f.area||""} onChange={v=>up("area",v)} placeholder="Old Town Clovis"/><Inp label="Category" value={f.category||""} onChange={v=>up("category",v)} placeholder="Festival"/><div style={{display:"flex",gap:6}}><Btn small onClick={async()=>{await db.ins("events",{...f,active:true});setSf(null);load()}}>Save</Btn><Btn small outline onClick={()=>setSf(null)} color={C.dd}>Cancel</Btn></div></div>}{d.ev.map((e,i)=><div key={i} style={{background:C.white,borderRadius:12,padding:12,marginBottom:6,border:`1px solid ${C.bl}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><div style={{fontSize:13,fontWeight:700,color:C.dk}}>{e.name}</div><div style={{fontSize:10,color:C.dd}}>{e.date_display} · {e.area}</div></div><div style={{display:"flex",gap:4}}><Btn small onClick={()=>{db.upd("events",e.id,{active:!e.active});load()}} color={e.active?`${C.green}15`:`${C.dd}15`} tc={e.active?C.green:C.dd}>{e.active?"ON":"OFF"}</Btn><Btn small onClick={()=>{if(confirm("Delete?"))db.del("events",e.id).then(load)}} color={`${C.red}10`} tc={C.red}>×</Btn></div></div>)}</>}
+{tab==="ev"&&!ld&&<EventsAdmin events={d.ev} onReload={load}/>}
 {tab==="biz"&&!ld&&<><div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}><SL>Businesses</SL><Btn small onClick={()=>{setSf("biz");setF({tier:"free"})}}>+ Add</Btn></div>{sf==="biz"&&<div style={{background:C.white,borderRadius:14,padding:14,marginBottom:12,border:`2px solid ${C.gold}`}}><Inp label="Name" value={f.name||""} onChange={v=>up("name",v)} placeholder="Ampersand Ice Cream"/><Inp label="Category" value={f.category||""} onChange={v=>up("category",v)} placeholder="Dessert"/><Inp label="Area" value={f.area||""} onChange={v=>up("area",v)} placeholder="Old Town Clovis"/><Inp label="Tier" value={f.tier||""} onChange={v=>up("tier",v)} placeholder="free/spotlight/featured/founding"/><Inp label="Rating" value={f.rating||""} onChange={v=>up("rating",v)} placeholder="4.9"/><Inp label="Deal" value={f.deal||""} onChange={v=>up("deal",v)} placeholder="10% off"/><Inp label="Phone" value={f.phone||""} onChange={v=>up("phone",v)} placeholder="(559) 555-5555"/><Inp label="Email" value={f.email||""} onChange={v=>up("email",v)} placeholder="hello@biz.com"/><Inp label="Website" value={f.website||""} onChange={v=>up("website",v)} placeholder="https://..."/><Inp label="Brand color" value={f.brand_color||""} onChange={v=>up("brand_color",v)} placeholder="#CEB08E"/><Inp label="Logo initials" value={f.logo_initials||""} onChange={v=>up("logo_initials",v)} placeholder="A&"/>
 <div style={{marginBottom:12,padding:12,borderRadius:12,background:`${C.gold}06`,border:`1px solid ${C.gold}20`}}>
 <div style={{fontSize:10,fontWeight:700,color:C.gold,letterSpacing:1,marginBottom:4}}>ADDRESS → AUTO COORDINATES</div>
