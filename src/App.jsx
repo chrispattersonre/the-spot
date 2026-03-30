@@ -121,16 +121,10 @@ function useGoogleMaps(){
 const PIN_COLORS={Restaurant:"#CEB08E",Coffee:"#8B6F47",Dessert:"#E8593C",Fitness:"#5CAA6E",Brunch:"#E8A040",Shopping:"#9B6ED4",Nightlife:"#7CA6E9",Wellness:"#D4736E",Golf:"#2D6A4F",Services:"#6B7280"};
 const FRESNO_CENTER={lat:36.7378,lng:-119.7871};
 
-function SpotMap({businesses,onSelect,selectedCat}){
-  const mapRef=useRef(null);const mapInstance=useRef(null);const markers=useRef([]);const infoRef=useRef(null);
+function SpotMap({businesses,onSelect,onPinTap,selectedCat}){
+  const mapRef=useRef(null);const mapInstance=useRef(null);const markers=useRef([]);const activeMarker=useRef(null);
   const mapsLoaded=useGoogleMaps();
   const filtered=useMemo(()=>{const withCoords=businesses.filter(b=>b.latitude&&b.longitude);return selectedCat==="All"?withCoords:withCoords.filter(b=>b.category===selectedCat)},[businesses,selectedCat]);
-
-  useEffect(()=>{
-    window._spotSelectBiz=onSelect;
-    window._spotBizList=businesses;
-    return ()=>{delete window._spotSelectBiz;delete window._spotBizList};
-  },[businesses,onSelect]);
 
   useEffect(()=>{
     if(!mapsLoaded||!mapRef.current||!window.google?.maps)return;
@@ -142,7 +136,7 @@ function SpotMap({businesses,onSelect,selectedCat}){
         mapTypeControl:false,streetViewControl:false,fullscreenControl:false,
         zoomControlOptions:{position:window.google.maps.ControlPosition.RIGHT_CENTER}
       });
-      infoRef.current=new window.google.maps.InfoWindow();
+      mapInstance.current.addListener("click",()=>{if(onPinTap)onPinTap(null);if(activeMarker.current){activeMarker.current.setIcon({path:window.google.maps.SymbolPath.CIRCLE,fillColor:activeMarker.current._color,fillOpacity:1,strokeColor:"#fff",strokeWeight:2,scale:8});activeMarker.current=null}});
     }
     markers.current.forEach(m=>m.setMap(null));markers.current=[];
     filtered.forEach(b=>{
@@ -153,10 +147,13 @@ function SpotMap({businesses,onSelect,selectedCat}){
         title:b.name,
         icon:{path:window.google.maps.SymbolPath.CIRCLE,fillColor:color,fillOpacity:1,strokeColor:"#fff",strokeWeight:2,scale:8}
       });
+      marker._color=color;
+      marker._biz=b;
       marker.addListener("click",()=>{
-        const paid=b.tier&&b.tier!=="free";
-        infoRef.current.setContent(`<div style="font-family:Outfit,sans-serif;padding:4px 2px;min-width:180px"><div style="font-size:15px;font-weight:700;color:#2A2A32">${b.name}</div><div style="font-size:11px;color:#8A8A96;margin-top:2px">${b.area} · ${b.category}${b.rating?" · ★"+b.rating:""}</div>${b.address?`<div style="font-size:10px;color:#8A8A96;margin-top:4px">${b.address}</div>`:""}${b.deal?`<div style="margin-top:6px;font-size:11px;font-weight:700;color:#5CAA6E;padding:3px 8px;border-radius:4px;background:rgba(92,170,110,0.1);display:inline-block">${b.deal}</div>`:""}<div style="margin-top:8px"><button onclick="var biz=window._spotBizList&&window._spotBizList.find(function(x){return String(x.id)==='${b.id}'});if(biz&&window._spotSelectBiz)window._spotSelectBiz(biz);" style="padding:6px 14px;background:#CEB08E;border:none;border-radius:8px;font-size:11px;font-weight:700;color:#08080C;cursor:pointer;font-family:Outfit,sans-serif">${paid?"View details":"View listing"}</button></div></div>`);
-        infoRef.current.open(mapInstance.current,marker);
+        if(activeMarker.current&&activeMarker.current!==marker){activeMarker.current.setIcon({path:window.google.maps.SymbolPath.CIRCLE,fillColor:activeMarker.current._color,fillOpacity:1,strokeColor:"#fff",strokeWeight:2,scale:8})}
+        marker.setIcon({path:window.google.maps.SymbolPath.CIRCLE,fillColor:color,fillOpacity:1,strokeColor:color,strokeWeight:3,scale:11});
+        activeMarker.current=marker;
+        if(onPinTap) onPinTap(b);
       });
       markers.current.push(marker);
     });
@@ -182,7 +179,54 @@ function SpotMap({businesses,onSelect,selectedCat}){
   return <div ref={mapRef} style={{height:280,width:"100%",borderRadius:16,overflow:"hidden",border:`1px solid ${C.bl}`,background:"#e8e4d8"}}/>;
 }
 
-function MapScreen({businesses,onOpenBiz,favs,toggleFav,user,showAuth}){const[q,setQ]=useState("");const[cat,setCat]=useState("All");const[aiOpen,setAiOpen]=useState(false);const[aiMsg,setAiMsg]=useState("");const[aiChat,setAiChat]=useState([]);const[aiLoading,setAiLoading]=useState(false);const chatEnd=useRef(null);const[mapView,setMapView]=useState(true);
+/* ═══════════════════════════════════════════
+   MAP BOTTOM SHEET
+   ═══════════════════════════════════════════ */
+function MapBottomSheet({biz,onClose,onViewDetails,saved,onToggleSave}){
+  const[visible,setVisible]=useState(false);
+  const prevBizRef=useRef(null);
+  useEffect(()=>{if(biz){setVisible(false);requestAnimationFrame(()=>requestAnimationFrame(()=>setVisible(true)));prevBizRef.current=biz}else{setVisible(false)}},[biz]);
+  if(!biz)return null;
+  const paid=biz.tier&&biz.tier!=="free";
+  const color=biz.brand_color||cc[biz.category]||C.gold;
+  return <div style={{position:"absolute",bottom:0,left:0,right:0,zIndex:5,padding:"0 10px 10px",transform:visible?"translateY(0)":"translateY(100%)",opacity:visible?1:0,transition:"transform 0.3s cubic-bezier(0.32,0.72,0,1), opacity 0.2s ease",pointerEvents:visible?"auto":"none"}}>
+    <div style={{background:C.white,borderRadius:18,boxShadow:"0 -4px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)",overflow:"hidden"}}>
+      <div style={{width:36,height:4,borderRadius:2,background:"#D1D1D6",margin:"8px auto 0"}}/>
+      <div style={{padding:"10px 14px 14px"}}>
+        <div style={{display:"flex",alignItems:"start",gap:12}}>
+          <div style={{width:46,height:46,borderRadius:12,background:paid?`linear-gradient(135deg,${color},${color}CC)`:`${color}15`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:800,color:paid?C.white:color,overflow:"hidden",flexShrink:0}}>
+            {biz.logo_url?<img src={biz.logo_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:(biz.logo_initials||biz.name?.charAt(0))}
+          </div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"start"}}>
+              <div style={{minWidth:0,flex:1}}>
+                <div style={{fontSize:16,fontWeight:700,color:C.dk,lineHeight:1.2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{biz.name}</div>
+                <div style={{fontSize:11,color:C.dd,marginTop:2}}>{biz.area} · {biz.category}{biz.rating?" · ★"+biz.rating:""}</div>
+              </div>
+              <div style={{display:"flex",gap:4,marginLeft:8,flexShrink:0}}>
+                <SaveBtn saved={saved} onToggle={onToggleSave} size={14}/>
+                <button onClick={onClose} style={{width:28,height:28,borderRadius:8,background:"rgba(0,0,0,0.04)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}><Ic d={ic.x} size={14} color={C.dd}/></button>
+              </div>
+            </div>
+            {biz.address&&<div style={{fontSize:11,color:C.dd,marginTop:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{biz.address}</div>}
+          </div>
+        </div>
+        {biz.deal&&<div style={{marginTop:10,padding:"8px 12px",borderRadius:10,background:`${C.green}08`,border:`1px solid ${C.green}15`,display:"flex",alignItems:"center",gap:6}}>
+          <Ic d={ic.deals} size={14} color={C.green}/>
+          <span style={{fontSize:12,fontWeight:700,color:C.green,flex:1}}>{biz.deal}</span>
+        </div>}
+        <div style={{display:"flex",gap:8,marginTop:12}}>
+          <button onClick={onViewDetails} style={{flex:1,padding:"11px 0",background:C.gold,border:"none",borderRadius:12,fontSize:13,fontWeight:700,color:C.bg,cursor:"pointer",fontFamily:FN}}>{paid?"View details":"View listing"}</button>
+          {biz.address&&<a href={`https://maps.google.com/maps?q=${encodeURIComponent(biz.address)}`} target="_blank" rel="noopener" onClick={()=>track("click_directions",biz.id)} style={{width:44,height:44,borderRadius:12,background:`${C.blue}10`,border:"none",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",flexShrink:0}}>
+            <Ic d={ic.pin} size={18} color={C.blue}/>
+          </a>}
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+function MapScreen({businesses,onOpenBiz,favs,toggleFav,user,showAuth}){const[q,setQ]=useState("");const[cat,setCat]=useState("All");const[aiOpen,setAiOpen]=useState(false);const[aiMsg,setAiMsg]=useState("");const[aiChat,setAiChat]=useState([]);const[aiLoading,setAiLoading]=useState(false);const chatEnd=useRef(null);const[mapView,setMapView]=useState(true);const[mapPreview,setMapPreview]=useState(null);
 const cats=["All",...new Set(businesses.map(b=>b.category).filter(Boolean))];const fl=useMemo(()=>{let l=businesses;if(cat!=="All")l=l.filter(b=>b.category===cat);if(q){const lc=q.toLowerCase();l=l.filter(b=>(b.name||"").toLowerCase().includes(lc)||(b.area||"").toLowerCase().includes(lc)||(b.category||"").toLowerCase().includes(lc))}return l},[businesses,q,cat]);
 
 const sendAi=async()=>{if(!aiMsg.trim()||aiLoading)return;const userMsg=aiMsg;setAiMsg("");setAiChat(p=>[...p,{role:"user",text:userMsg}]);setAiLoading(true);
@@ -232,7 +276,10 @@ return <div style={{background:C.sl,minHeight:"100%",paddingBottom:80,position:"
 </div>}
 
 <div style={{padding:14}}>
-<SpotMap businesses={fl} onSelect={onOpenBiz} selectedCat={cat}/>
+<div style={{position:"relative"}}>
+<SpotMap businesses={fl} onSelect={onOpenBiz} onPinTap={b=>setMapPreview(b)} selectedCat={cat}/>
+<MapBottomSheet biz={mapPreview} onClose={()=>setMapPreview(null)} onViewDetails={()=>{const b=mapPreview;setMapPreview(null);onOpenBiz(b)}} saved={mapPreview?favs?.includes(mapPreview.id):false} onToggleSave={()=>{if(mapPreview)toggleFav(mapPreview.id)}}/>
+</div>
 <div style={{fontSize:10,fontWeight:700,color:C.dd,letterSpacing:2,marginTop:10,marginBottom:8}}>{fl.length} SPOTS</div>
 {fl.map((b,i)=>{const paid=b.tier&&b.tier!=="free";return <div key={i} onClick={()=>onOpenBiz(b)} style={{background:C.white,borderRadius:14,marginBottom:8,border:paid?`1.5px solid ${(b.brand_color||C.gold)}25`:`1px solid ${C.bl}`,overflow:"hidden",cursor:"pointer"}}>
 {paid&&<div style={{height:60,background:`linear-gradient(135deg,${b.brand_color||C.gold},${b.brand_color||C.gold}CC)`,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 14px"}}><div style={{width:32,height:32,borderRadius:8,background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:C.white,overflow:"hidden"}}>{b.logo_url?<img src={b.logo_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:(b.logo_initials||b.name?.charAt(0))}</div><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:14,fontWeight:800,color:C.white}}>★ {b.rating}</span><SaveBtn saved={favs?.includes(b.id)} onToggle={()=>toggleFav(b.id)} size={14}/></div></div>}
@@ -351,12 +398,6 @@ return <div style={{background:C.sl,minHeight:"100%",paddingBottom:80}}><div sty
 {tab==="qz"&&!ld&&d.qz.map((q,i)=><div key={i} style={{background:C.white,borderRadius:12,padding:12,marginBottom:6,border:`1px solid ${C.bl}`}}><div style={{fontSize:10,color:C.dd}}>{new Date(q.created_at).toLocaleDateString()}</div><div style={{fontSize:12,fontWeight:600,color:C.dk}}>Match: {q.top_match||"—"}</div><div style={{fontSize:11,color:"#6B6B78",lineHeight:1.6,marginTop:4}}>{Array.isArray(q.answers)?q.answers.map((a,j)=><div key={j}>{typeof a==="object"?`${a.question} → ${a.answer}`:`Q${j+1}: ${a}`}</div>):JSON.stringify(q.answers)}</div></div>)}
 </div></div>}
 
-/* ═══════════════════════════════════════════
-   PARTNER ANALYTICS PORTAL
-   ═══════════════════════════════════════════ */
-/* ═══════════════════════════════════════════
-   DEAL MANAGER (for partner portal)
-   ═══════════════════════════════════════════ */
 function DealManager({biz,onUpdate}){
   const[open,setOpen]=useState(false);const[deal,setDeal]=useState(biz.deal||"");const[saving,setSaving]=useState(false);
   const save=async()=>{setSaving(true);await db.upd("businesses",biz.id,{deal:deal.trim()||null});biz.deal=deal.trim()||null;setSaving(false);setOpen(false);onUpdate?.()};
@@ -453,18 +494,12 @@ function PartnerPortal({goBack}){
   </div>;
 }
 
-/* ═══════════════════════════════════════════
-   SAVE / HEART BUTTON
-   ═══════════════════════════════════════════ */
 function SaveBtn({saved,onToggle,size=18}){
   return <button onClick={e=>{e.stopPropagation();onToggle()}} style={{width:size+14,height:size+14,borderRadius:8,background:saved?`${C.red}12`:"rgba(0,0,0,0.04)",border:"none",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all 0.2s"}}>
     <svg width={size} height={size} viewBox="0 0 24 24" fill={saved?C.red:"none"} stroke={saved?C.red:C.dd} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
   </button>;
 }
 
-/* ═══════════════════════════════════════════
-   FEED POSTS (Chris's content + business updates)
-   ═══════════════════════════════════════════ */
 const FEED_POSTS=[
   {type:"chris",title:"Tower District: The Hidden Gem of Fresno",body:"Most people moving to the area overlook Tower District. But if you love walkability, independent restaurants, and live music every weekend — this is your spot. Median homes here are $310K, and the vibe is unmatched.",time:"2h ago",tag:"Neighborhood Guide"},
   {type:"chris",title:"Market Update: Spring 2026",body:"Fresno/Clovis median sale price is holding at $400K with 59 days on market. Sale-to-list ratio is 98.7%. If you're thinking of buying or selling, now's a great time to have a conversation about strategy.",time:"1d ago",tag:"Market Update"},
