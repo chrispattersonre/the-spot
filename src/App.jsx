@@ -488,39 +488,14 @@ function EventsAdmin({events,onReload}){
     setAiLoading(true);setAiError("");setAiEvents([]);
     try{
       const existingNames=events.map(e=>(e.name||"").toLowerCase());
-      const today=new Date().toISOString().split("T")[0];
-      const r=await fetch("https://api.anthropic.com/v1/messages",{
-        method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({
-          model:"claude-sonnet-4-20250514",max_tokens:4000,
-          tools:[{type:"web_search_20250305",name:"web_search"}],
-          messages:[{role:"user",content:`Today is ${today}. Search for upcoming events in Fresno, Clovis, Madera, and the surrounding Central Valley area in the next 60 days. Look for festivals, concerts, farmers markets, food events, community events, sports, art shows, and anything fun.
-
-Search multiple queries: "Fresno events ${new Date().toLocaleString('default',{month:'long',year:'numeric'})}", "Clovis events upcoming", "Fresno festivals 2026", "Central Valley events this month", "Tower District events".
-
-Return ONLY a JSON array (no markdown, no backticks, no explanation) of event objects with these fields:
-- name (string)
-- category (one of: Festival, Music, Sports, Food, Arts, Market, Community, Nightlife)
-- area (specific area like "Old Town Clovis", "Tower District", "Downtown Fresno", "Woodward Park", "River Park", "Madera")
-- date_display (human readable like "Apr 25-27" or "Every Sat")
-- date_sort (YYYY-MM-DD format, use the first date if a range)
-- description (1-2 sentences, compelling)
-- is_hot (boolean, true if it's a major/popular event)
-- is_free (boolean)
-- link (URL to event page or ticket site, or null if not found)
-
-Find at least 8-12 events. Skip any that seem to have already passed. Only return the JSON array.`}]
-        })
+      const r=await fetch(`${SB}/functions/v1/clever-worker`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json",apikey:SK,Authorization:`Bearer ${SK}`},
+        body:JSON.stringify({existing_events:existingNames})
       });
       const data=await r.json();
-      const textBlocks=data.content?.filter(b=>b.type==="text").map(b=>b.text).join("") || "";
-      const cleaned=textBlocks.replace(/```json|```/g,"").trim();
-      let parsed=[];
-      try{parsed=JSON.parse(cleaned)}catch{
-        const match=cleaned.match(/\[[\s\S]*\]/);
-        if(match)try{parsed=JSON.parse(match[0])}catch{}
-      }
-      const filtered=parsed.filter(e=>e.name&&!existingNames.includes((e.name||"").toLowerCase()));
+      if(data.error){setAiError(data.error);setAiLoading(false);return}
+      const filtered=data.events||[];
       if(filtered.length===0){setAiError("No new events found. Try again later or add manually.")}
       setAiEvents(filtered);
     }catch(err){
