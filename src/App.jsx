@@ -150,7 +150,7 @@ function SpotMap({businesses,onSelect,selectedCat}){
       });
       marker.addListener("click",()=>{
         const paid=b.tier&&b.tier!=="free";
-        infoRef.current.setContent(`<div style="font-family:Outfit,sans-serif;padding:4px 2px;min-width:180px"><div style="font-size:15px;font-weight:700;color:#2A2A32">${b.name}</div><div style="font-size:11px;color:#8A8A96;margin-top:2px">${b.area} · ${b.category}${b.rating?" · ★"+b.rating:""}</div>${b.deal?`<div style="margin-top:6px;font-size:11px;font-weight:700;color:#5CAA6E;padding:3px 8px;border-radius:4px;background:rgba(92,170,110,0.1);display:inline-block">${b.deal}</div>`:""}<div style="margin-top:8px"><button onclick="document.dispatchEvent(new CustomEvent('spot-select',{detail:${b.id}}))" style="padding:6px 14px;background:#CEB08E;border:none;border-radius:8px;font-size:11px;font-weight:700;color:#08080C;cursor:pointer;font-family:Outfit,sans-serif">${paid?"View details":"View listing"}</button></div></div>`);
+        infoRef.current.setContent(`<div style="font-family:Outfit,sans-serif;padding:4px 2px;min-width:180px"><div style="font-size:15px;font-weight:700;color:#2A2A32">${b.name}</div><div style="font-size:11px;color:#8A8A96;margin-top:2px">${b.area} · ${b.category}${b.rating?" · ★"+b.rating:""}</div>${b.deal?`<div style="margin-top:6px;font-size:11px;font-weight:700;color:#5CAA6E;padding:3px 8px;border-radius:4px;background:rgba(92,170,110,0.1);display:inline-block">${b.deal}</div>`:""}<div style="margin-top:8px"><button onclick="document.dispatchEvent(new CustomEvent('spot-select',{detail:'${b.id}'}))" style="padding:6px 14px;background:#CEB08E;border:none;border-radius:8px;font-size:11px;font-weight:700;color:#08080C;cursor:pointer;font-family:Outfit,sans-serif">${paid?"View details":"View listing"}</button></div></div>`);
         infoRef.current.open(mapInstance.current,marker);
       });
       markers.current.push(marker);
@@ -160,7 +160,7 @@ function SpotMap({businesses,onSelect,selectedCat}){
   },[mapsLoaded,filtered]);
 
   useEffect(()=>{
-    const handler=(e)=>{const biz=businesses.find(b=>b.id===e.detail);if(biz)onSelect(biz)};
+    const handler=(e)=>{const biz=businesses.find(b=>String(b.id)===String(e.detail));if(biz)onSelect(biz)};
     document.addEventListener("spot-select",handler);
     return ()=>document.removeEventListener("spot-select",handler);
   },[businesses,onSelect]);
@@ -234,18 +234,13 @@ return <div style={{background:C.sl,minHeight:"100%",paddingBottom:80,position:"
 
 <div style={{padding:14}}>
 <SpotMap businesses={fl} onSelect={onOpenBiz} selectedCat={cat}/>
-<div style={{display:"flex",gap:6,marginTop:10,marginBottom:10}}>
-<button onClick={()=>setMapView(true)} style={{flex:1,padding:"8px",borderRadius:10,border:`1px solid ${mapView?C.gold:C.bl}`,fontSize:12,fontWeight:mapView?700:500,background:mapView?`${C.gold}12`:C.white,color:mapView?C.gold:C.dd,cursor:"pointer",fontFamily:FN,display:"flex",alignItems:"center",justifyContent:"center",gap:4}}><Ic d={ic.map} size={14} color={mapView?C.gold:C.dd}/> Map</button>
-<button onClick={()=>setMapView(false)} style={{flex:1,padding:"8px",borderRadius:10,border:`1px solid ${!mapView?C.gold:C.bl}`,fontSize:12,fontWeight:!mapView?700:500,background:!mapView?`${C.gold}12`:C.white,color:!mapView?C.gold:C.dd,cursor:"pointer",fontFamily:FN,display:"flex",alignItems:"center",justifyContent:"center",gap:4}}><Ic d={ic.search} size={14} color={!mapView?C.gold:C.dd}/> List</button>
-</div>
-{!mapView&&<><div style={{fontSize:10,fontWeight:700,color:C.dd,letterSpacing:2,marginBottom:8}}>{fl.length} SPOTS</div>
+<div style={{fontSize:10,fontWeight:700,color:C.dd,letterSpacing:2,marginTop:10,marginBottom:8}}>{fl.length} SPOTS</div>
 {fl.map((b,i)=>{const paid=b.tier&&b.tier!=="free";return <div key={i} onClick={()=>onOpenBiz(b)} style={{background:C.white,borderRadius:14,marginBottom:8,border:paid?`1.5px solid ${(b.brand_color||C.gold)}25`:`1px solid ${C.bl}`,overflow:"hidden",cursor:"pointer"}}>
 {paid&&<div style={{height:60,background:`linear-gradient(135deg,${b.brand_color||C.gold},${b.brand_color||C.gold}CC)`,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 14px"}}><div style={{width:32,height:32,borderRadius:8,background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:C.white,overflow:"hidden"}}>{b.logo_url?<img src={b.logo_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:(b.logo_initials||b.name?.charAt(0))}</div><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:14,fontWeight:800,color:C.white}}>★ {b.rating}</span><SaveBtn saved={favs?.includes(b.id)} onToggle={()=>toggleFav(b.id)} size={14}/></div></div>}
 <div style={{padding:"12px 14px",display:"flex",justifyContent:"space-between",alignItems:"start"}}>
 <div><div style={{fontSize:14,fontWeight:700,color:C.dk}}>{b.name}</div><div style={{fontSize:11,color:C.dd}}>{b.area} · {b.category}</div>{b.deal&&<div style={{marginTop:6,fontSize:10,fontWeight:700,padding:"3px 8px",borderRadius:6,background:`${C.green}10`,color:C.green,display:"inline-block"}}>{b.deal}</div>}</div>
 {!paid&&<SaveBtn saved={favs?.includes(b.id)} onToggle={()=>toggleFav(b.id)} size={14}/>}
 </div></div>})}
-</>}
 </div></div>}
 
 function EventsScreen({events}){const[cat,setCat]=useState("All");const cats=["All",...new Set(events.map(e=>e.category).filter(Boolean))];const list=cat==="All"?events:events.filter(e=>e.category===cat);
