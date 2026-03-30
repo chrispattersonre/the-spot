@@ -523,7 +523,9 @@ function FeedPost({post}){
   </div>;
 }
 
-export default function App(){const[scr,setScr]=useState(()=>typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("admin")==="1"?"admin":"feed");const[nav,setNav]=useState("feed");const[user,setUser]=useState(null);const[am,setAm]=useState(false);const[np,setNp]=useState(false);const[biz,setBiz]=useState([]);const[ev,setEv]=useState([]);const[rev,setRev]=useState([]);const[ck,setCk]=useState([]);const[cib,setCib]=useState(null);const[rb,setRb]=useState(null);const[db2,setDb2]=useState(null);const[favs,setFavs]=useState([]);const[ugc,setUgc]=useState([]);const[showAdminTab,setShowAdminTab]=useState(()=>typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("admin")==="1");
+export default function App(){const[scr,setScr]=useState(()=>typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("admin")==="1"?"admin":"feed");const[nav,setNav]=useState("feed");const[user,setUser]=useState(()=>{try{const s=localStorage.getItem("spot_user");return s?JSON.parse(s):null}catch{return null}});const[am,setAm]=useState(false);const[np,setNp]=useState(false);const[biz,setBiz]=useState([]);const[ev,setEv]=useState([]);const[rev,setRev]=useState([]);const[ck,setCk]=useState([]);const[cib,setCib]=useState(null);const[rb,setRb]=useState(null);const[db2,setDb2]=useState(null);const[favs,setFavs]=useState(()=>{try{const s=localStorage.getItem("spot_favs");return s?JSON.parse(s):[]}catch{return[]}});const[ugc,setUgc]=useState([]);const[showAdminTab,setShowAdminTab]=useState(()=>typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("admin")==="1");
+useEffect(()=>{if(user)localStorage.setItem("spot_user",JSON.stringify(user));else localStorage.removeItem("spot_user")},[user]);
+useEffect(()=>{localStorage.setItem("spot_favs",JSON.stringify(favs))},[favs]);
 const toggleFav=(bizId)=>{if(!user){setAm(true);return}setFavs(p=>p.includes(bizId)?p.filter(f=>f!==bizId):[...p,bizId])};
 useEffect(()=>{(async()=>{
   try{
