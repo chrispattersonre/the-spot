@@ -493,6 +493,7 @@ function PartnerPortal({goBack}){
         <div style={{fontSize:12,color:C.td,marginBottom:10}}>Listing info is managed by Chris for quality</div>
         <a href="tel:5593171529" style={{display:"inline-flex",alignItems:"center",gap:6,padding:"10px 18px",background:`${C.green}15`,borderRadius:10,fontSize:13,fontWeight:600,color:C.green,textDecoration:"none"}}><Ic d={ic.phone} size={14} color={C.green}/> Call {PHONE}</a>
       </div>
+      <button onClick={logout} style={{width:"100%",padding:12,background:"transparent",border:`1px solid ${C.bl}`,borderRadius:12,fontSize:13,fontWeight:600,color:C.red,cursor:"pointer",fontFamily:FN,display:"flex",alignItems:"center",justifyContent:"center",gap:8,marginTop:14}}><Ic d={ic.logout} size={16} color={C.red}/> Log out of Partner Portal</button>
     </div>
   </div>;
 }
