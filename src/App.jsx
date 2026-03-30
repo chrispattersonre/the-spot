@@ -524,7 +524,7 @@ return <div style={{minHeight:"100vh",maxWidth:480,margin:"0 auto",fontFamily:FN
 {scr==="referral"&&<ReferralForm goBack={()=>go("me")}/>}
 {scr==="partner"&&<PartnerForm goBack={()=>go("me")}/>}
 {scr==="partner-portal"&&<PartnerPortal goBack={()=>go("me")}/>}
-</div>{sn&&<div style={{position:"sticky",bottom:0,zIndex:10}}><BottomNav active={nav} go={go} showAdmin={showAdminTab}/></div>}</div>
+</div>{sn&&<div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,zIndex:10}}><BottomNav active={nav} go={go} showAdmin={showAdminTab}/></div>}</div>
 {am&&<AuthModal onClose={()=>setAm(false)} onAuth={u=>{setUser(u);setAm(false)}}/>}
 {cib&&<CheckInModal biz={cib} user={user} onConfirm={cfCi} onClose={()=>setCib(null)}/>}
 {rb&&<RedeemScreen biz={rb} user={user} onClose={()=>setRb(null)}/>}
