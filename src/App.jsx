@@ -37,14 +37,14 @@ const DEMO_BIZ=[
   {id:12,name:"Luna Boutique",category:"Shopping",area:"Fig Garden",description:"Curated women's fashion, accessories, and gifts. Local designers featured monthly.",rating:4.8,reviews:89,brand_color:"#9B6ED4",logo_initials:"LB",tier:"spotlight",featured:false,approved:true,deal:"15% off first purchase",phone:"5595551012",address:"5098 N Palm Ave, Fresno, CA 93704",latitude:36.8087,longitude:-119.8024},
 ];
 const DEMO_EV=[
-  {id:1,name:"Big Hat Days",category:"Festival",area:"Old Town Clovis",date_display:"Apr 25-27",date_sort:"2026-04-25",description:"Clovis' biggest annual street festival. Live music, rodeo events, food vendors, and carnival rides.",is_hot:true,is_free:true,active:true,link:"https://bighatdays.com"},
-  {id:2,name:"Tower District Art Hop",category:"Arts",area:"Tower District",date_display:"May 1",date_sort:"2026-05-01",description:"Monthly gallery walk through Tower District. Dozens of local artists, live music at every corner.",is_hot:true,is_free:true,active:true},
-  {id:3,name:"Grizzlies vs Rainiers",category:"Sports",area:"Downtown Fresno",date_display:"Apr 18",date_sort:"2026-04-18",description:"Fresno Grizzlies minor league baseball at Chukchansi Park. Fireworks night!",is_hot:false,is_free:false,active:true,link:"https://milb.com/fresno"},
-  {id:4,name:"Woodward Park Farmers Market",category:"Market",area:"Woodward Park",date_display:"Every Sat",date_sort:"2026-04-12",description:"Fresh local produce, artisan bread, honey, and flowers. 7am–12pm year-round.",is_hot:false,is_free:true,active:true},
-  {id:5,name:"Live at the Winery",category:"Music",area:"Madera",date_display:"Apr 19",date_sort:"2026-04-19",description:"Outdoor concert series at San Joaquin Wine Co. Bring a blanket and a bottle.",is_hot:true,is_free:false,active:true},
-  {id:6,name:"Clovis Rodeo",category:"Festival",area:"Clovis",date_display:"Apr 23-26",date_sort:"2026-04-23",description:"104th annual Clovis Rodeo. PRCA-sanctioned events, concerts, and the famous cattle drive.",is_hot:true,is_free:false,active:true,link:"https://clovisrodeo.com"},
-  {id:7,name:"Food Truck Thursday",category:"Food",area:"River Park",date_display:"Every Thu",date_sort:"2026-04-10",description:"Rotating food trucks at River Park shopping center. 5pm–9pm. 10+ trucks weekly.",is_hot:false,is_free:true,active:true},
-  {id:8,name:"Valley Children's 5K",category:"Community",area:"Woodward Park",date_display:"May 3",date_sort:"2026-05-03",description:"Annual charity run through Woodward Park. Family-friendly with a kids fun run.",is_hot:false,is_free:false,active:true},
+  {id:1,name:"Big Hat Days",category:"Festival",area:"Old Town Clovis",date_display:"Apr 11-12",date_sort:"2026-04-11",description:"88th annual street festival — Central California's largest two-day event. 400+ craft and food vendors, carnival, live music, and 140,000 visitors fill Pollasky Ave. Sat 9am-6pm, Sun 9am-5pm.",is_hot:true,is_free:true,active:true,link:"https://clovischamber.com/events/big_hat_days/"},
+  {id:2,name:"Boots in the Park",category:"Music",area:"Woodward Park",date_display:"Apr 18",date_sort:"2026-04-18",description:"10th anniversary of Fresno's biggest country music fest. Jon Pardi headlines with Koe Wetzel, Jackson Dean, Meghan Patrick, and Matt Cooper. 2pm-10pm at the Rotary Amphitheater.",is_hot:true,is_free:false,active:true,link:"https://bootsinthepark.com"},
+  {id:3,name:"112th Clovis Rodeo",category:"Festival",area:"Clovis",date_display:"Apr 22-26",date_sort:"2026-04-22",description:"Five days of PRCA rodeo action — bull riding, barrel racing, team roping, and more. Concerts by Corey Kent (Wed), Josh Ross (Thu), and Shane Profitt (Fri). Parade on Saturday at 9:30am.",is_hot:true,is_free:false,active:true,link:"https://clovisrodeo.com"},
+  {id:4,name:"Clovis Rodeo Parade",category:"Community",area:"Old Town Clovis",date_display:"Apr 25",date_sort:"2026-04-25",description:"2.5-mile parade through downtown Clovis kicking off Saturday rodeo festivities. Starts 9:30am on Clovis Ave and Pollasky.",is_hot:false,is_free:true,active:true,link:"https://clovisrodeo.com"},
+  {id:5,name:"Grizzlies vs Rancho Cucamonga",category:"Sports",area:"Downtown Fresno",date_display:"Apr 22-27",date_sort:"2026-04-22",description:"Fresno Grizzlies host the Rancho Cucamonga Quakes at Chukchansi Park. Fireworks on Friday Apr 24 (Fresno Tacos Night). First TV broadcast Apr 25 on CBS47.",is_hot:false,is_free:false,active:true,link:"https://milb.com/fresno"},
+  {id:6,name:"Grizzlies vs Stockton Ports",category:"Sports",area:"Downtown Fresno",date_display:"Apr 7-13",date_sort:"2026-04-07",description:"Home opening series at Chukchansi Park. Military Appreciation Night Apr 10 with Friday Night Fireworks. SpongeBob Night Apr 11.",is_hot:false,is_free:false,active:true,link:"https://milb.com/fresno"},
+  {id:7,name:"Mrs. Doubtfire",category:"Arts",area:"Downtown Fresno",date_display:"May 26-27",date_sort:"2026-05-26",description:"The hit Broadway musical comes to the Saroyan Theatre. Based on the beloved film — a hilarious, heartfelt story about family. Shows at 7:30pm.",is_hot:true,is_free:false,active:true,link:"https://events.fresnoconventioncenter.com"},
+  {id:8,name:"Clovis Ranch Rodeo",category:"Festival",area:"Clovis",date_display:"Apr 11",date_sort:"2026-04-11",description:"Western States Ranch Rodeo Association sanctioned event at the Clovis Rodeo Grounds. Real working ranch hands competing in team events.",is_hot:false,is_free:false,active:true,link:"https://clovisrodeo.com/ranch-rodeo/"},
 ];
 const DEMO_REV=[
   {id:1,client_name:"Angela B.",rating:5,review_text:"Chris helped us find our dream home in Woodward Park. His knowledge of the area is unmatched — he showed us neighborhoods we never would have found on our own. Closed in 32 days!",date_display:"2 weeks ago",platform:"Google",featured:true},
@@ -810,25 +810,72 @@ function SaveBtn({saved,onToggle,size=18}){
 }
 
 const FEED_POSTS=[
-  {type:"chris",title:"Tower District: The Hidden Gem of Fresno",body:"Most people moving to the area overlook Tower District. But if you love walkability, independent restaurants, and live music every weekend — this is your spot. Median homes here are $310K, and the vibe is unmatched.",time:"2h ago",tag:"Neighborhood Guide"},
-  {type:"chris",title:"Market Update: Spring 2026",body:"Fresno/Clovis median sale price is holding at $400K with 59 days on market. Sale-to-list ratio is 98.7%. If you're thinking of buying or selling, now's a great time to have a conversation about strategy.",time:"1d ago",tag:"Market Update"},
-  {type:"chris",title:"New Spot Partner: Welcome aboard!",body:"Excited to welcome our newest Spot partners this month. Check the Deals tab for their exclusive offers — only available to Spot members who check in.",time:"3d ago",tag:"Announcement"},
-  {type:"tip",title:"Weekend tip: Farmers Market season is here",body:"Old Town Clovis Saturday market is back in full swing. Pro tip: get there by 8am for the best produce and park on Pollasky. The fresh tamales sell out by 9.",time:"5d ago",tag:"Local Tip"},
+  {type:"market",title:"Spring 2026: Fresno Holding Steady",body:"Fresno median is $390K (down 5.9% YoY), Clovis at $465K. Homes are sitting 50 days on average — up from 37 last year. Buyers have more negotiating power than they've had in years. Sellers, pricing right from day one is everything. Either side — let's talk strategy.",time:"2h ago",tag:"Market Pulse",stats:[{num:"$390K",label:"Fresno",change:"-5.9%"},{num:"$465K",label:"Clovis",change:"-1.1%"},{num:"50",label:"Days on Mkt",change:"+13"}]},
+  {type:"hood",title:"Clovis East: Why Families Keep Choosing This Side",body:"Top-rated Clovis Unified schools, new construction under $500K, trail access, and every grocery and restaurant you'd want within five minutes. If your priority list starts with good schools and new builds — this is the search zone.",time:"1d ago",tag:"Neighborhood",tags:["Clovis Unified","New builds","Trail access","All amenities"]},
+  {type:"tip",title:"Homes Are Sitting Longer — Use That",body:"Average days on market in Fresno jumped from 37 to 50. That means less competition and more leverage on price, repairs, and closing costs. If you've been waiting for a moment to negotiate — this is it.",time:"3d ago",tag:"Buyer Tip"},
 ];
 
 function FeedPost({post}){
-  const isChris=post.type==="chris"||post.type==="tip";
-  return <div style={{background:C.white,borderRadius:16,padding:16,marginBottom:10,border:`1px solid ${C.bl}`}}>
+  const tagColor=post.tag==="Market Pulse"?C.blue:post.tag==="Neighborhood"?C.green:post.tag==="Buyer Tip"?C.orange:C.gold;
+
+  if(post.type==="market") return <div style={{background:`linear-gradient(135deg,#1a2332,#2a3a4e)`,borderRadius:16,padding:18,marginBottom:12,overflow:"hidden",position:"relative"}}>
+    <div style={{position:"absolute",top:0,right:0,width:120,height:120,background:"radial-gradient(circle,rgba(206,176,142,0.08) 0%,transparent 70%)"}}/>
+    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+      <div style={{width:6,height:6,borderRadius:"50%",background:C.blue,animation:"pulse 2s infinite"}}/>
+      <span style={{fontSize:10,fontWeight:700,color:C.blue,letterSpacing:1.5,textTransform:"uppercase"}}>{post.tag}</span>
+      <span style={{fontSize:10,color:"rgba(255,255,255,0.3)",marginLeft:"auto"}}>{post.time}</span>
+    </div>
+    <div style={{fontFamily:FD,fontSize:17,fontWeight:700,color:"#FAFAF9",lineHeight:1.35,marginBottom:14}}>{post.title}</div>
+    {post.stats&&<div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6,marginBottom:14}}>
+      {post.stats.map((s,i)=><div key={i} style={{background:"rgba(255,255,255,0.06)",borderRadius:10,padding:"10px 8px",textAlign:"center"}}>
+        <div style={{fontSize:18,fontWeight:800,color:"#FAFAF9"}}>{s.num}</div>
+        <div style={{fontSize:9,color:"rgba(255,255,255,0.45)",textTransform:"uppercase",letterSpacing:.5,marginTop:1}}>{s.label}</div>
+        <div style={{fontSize:9,fontWeight:700,color:s.change.startsWith("-")?"#f4845f":s.change.startsWith("+")?"#8ecae6":"rgba(255,255,255,0.5)",marginTop:2}}>{s.change}</div>
+      </div>)}
+    </div>}
+    <div style={{fontSize:13,color:"rgba(255,255,255,0.65)",lineHeight:1.65,marginBottom:14}}>{post.body}</div>
+    <a href="tel:5593171529" style={{display:"inline-flex",alignItems:"center",gap:6,background:"#FAFAF9",color:"#1a2332",fontWeight:700,fontSize:12,padding:"10px 18px",borderRadius:10,textDecoration:"none",fontFamily:FN}}>Let's talk <Ic d={ic.arrow} size={12} color="#1a2332"/></a>
+    <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}`}</style>
+  </div>;
+
+  if(post.type==="hood") return <div style={{background:C.white,borderRadius:16,marginBottom:12,overflow:"hidden",border:`1px solid ${C.bl}`}}>
+    <div style={{height:80,background:`linear-gradient(135deg,${C.gold},#B8956E)`,display:"flex",alignItems:"flex-end",padding:"0 16px 10px",position:"relative"}}>
+      <div style={{position:"absolute",inset:0,background:"linear-gradient(to top,rgba(0,0,0,0.4) 0%,transparent 60%)"}}/>
+      <div style={{position:"relative",zIndex:1}}>
+        <div style={{fontSize:9,fontWeight:700,color:"rgba(255,255,255,0.7)",letterSpacing:1.5,textTransform:"uppercase"}}>{post.tag}</div>
+      </div>
+      <span style={{position:"absolute",top:10,right:14,fontSize:10,color:"rgba(255,255,255,0.5)"}}>{post.time}</span>
+    </div>
+    <div style={{padding:"14px 16px 16px"}}>
+      <div style={{fontFamily:FD,fontSize:16,fontWeight:700,color:C.dk,lineHeight:1.35,marginBottom:8}}>{post.title}</div>
+      <div style={{fontSize:13,color:"#6B6B78",lineHeight:1.65,marginBottom:12}}>{post.body}</div>
+      {post.tags&&<div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+        {post.tags.map((t,i)=><span key={i} style={{fontSize:10,padding:"4px 10px",borderRadius:20,background:`${C.gold}08`,border:`1px solid ${C.gold}15`,color:C.brown}}>{t}</span>)}
+      </div>}
+    </div>
+  </div>;
+
+  if(post.type==="tip") return <div style={{background:`linear-gradient(135deg,#fef9ef,#fdf3e0)`,borderRadius:16,padding:16,marginBottom:12,border:`1px solid #f0e4c8`}}>
+    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+      <Ic d={ic.star} size={14} color="#b8860b"/>
+      <span style={{fontSize:10,fontWeight:700,color:"#b8860b",letterSpacing:1.5,textTransform:"uppercase"}}>{post.tag}</span>
+      <span style={{fontSize:10,color:"#c4b38a",marginLeft:"auto"}}>{post.time}</span>
+    </div>
+    <div style={{fontFamily:FD,fontSize:15,fontWeight:700,color:"#3d3426",lineHeight:1.35,marginBottom:6}}>{post.title}</div>
+    <div style={{fontSize:13,color:"#6b5d45",lineHeight:1.65}}>{post.body}</div>
+  </div>;
+
+  return <div style={{background:C.white,borderRadius:16,padding:16,marginBottom:12,border:`1px solid ${C.bl}`}}>
     <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:10}}>
-      {isChris?<SpotLogo size={36}/>:<div style={{width:36,height:36,borderRadius:10,background:`${C.gold}15`,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic d={ic.star} size={16} color={C.gold}/></div>}
+      <SpotLogo size={32}/>
       <div style={{flex:1}}>
-        <div style={{fontSize:13,fontWeight:700,color:C.dk}}>{isChris?"Chris Patterson":"The Spot"}</div>
+        <div style={{fontSize:12,fontWeight:700,color:C.dk}}>Chris Patterson</div>
         <div style={{fontSize:10,color:C.dd}}>{post.time}</div>
       </div>
-      <Badge color={post.tag==="Market Update"?C.blue:post.tag==="Neighborhood Guide"?C.green:post.tag==="Local Tip"?C.orange:C.gold}>{post.tag}</Badge>
+      <Badge color={tagColor}>{post.tag}</Badge>
     </div>
-    <div style={{fontSize:15,fontWeight:700,color:C.dk,lineHeight:1.3,marginBottom:6}}>{post.title}</div>
-    <div style={{fontSize:13,color:"#6B6B78",lineHeight:1.7}}>{post.body}</div>
+    <div style={{fontFamily:FD,fontSize:15,fontWeight:700,color:C.dk,lineHeight:1.35,marginBottom:6}}>{post.title}</div>
+    <div style={{fontSize:13,color:"#6B6B78",lineHeight:1.65}}>{post.body}</div>
   </div>;
 }
 
